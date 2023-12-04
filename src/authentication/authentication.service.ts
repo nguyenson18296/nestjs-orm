@@ -1,14 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
-import { UsersService } from 'src/users/users.service';
-import { PostgresErrorCode } from 'src/database/postgresErrorCodes.enum';
-import TokenPayload from './tokenPayload.interface';
+import { UsersService } from '../users/users.service';
 import RegisterDto from './dto/register.dto';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const bcrypt = require('bcrypt');
+import PostgresErrorCode from '../database/postgresErrorCodes.enum';
+import TokenPayload from './tokenPayload.interface';
 
 @Injectable()
 export class AuthenticationService {
@@ -41,6 +39,18 @@ export class AuthenticationService {
     }
   }
 
+  public getCookieWithJwtToken(userId: number) {
+    const payload: TokenPayload = { userId };
+    const token = this.jwtService.sign(payload);
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_EXPIRATION_TIME',
+    )}`;
+  }
+
+  public getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  }
+
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {
     try {
       const user = await this.usersService.getByEmail(email);
@@ -68,17 +78,5 @@ export class AuthenticationService {
         HttpStatus.BAD_REQUEST,
       );
     }
-  }
-
-  public getCookieWithJwtToken(userId: number) {
-    const payload: TokenPayload = { userId };
-    const token = this.jwtService.sign(payload);
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      'JWT_EXPIRATION_TIME',
-    )}`;
-  }
-
-  public getCookieForLogOut() {
-    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
 }
