@@ -13,7 +13,6 @@ class CloudStorageService {
     this.storage = new Storage({
       projectId: 'named-nomad-407218',
     });
-    console.log('storage', this.storage);
     this.bucket = this.storage.bucket('nestjs');
   }
 

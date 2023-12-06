@@ -9,6 +9,7 @@ import {
   Req,
   UseFilters,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 
 import PostsService from './posts.service';
@@ -24,7 +25,10 @@ export default class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  getAllPosts() {
+  getAllPosts(@Query('search') search: string) {
+    if (search) {
+      return this.postsService.searchForPosts(search);
+    }
     return this.postsService.getAllPosts();
   }
 
@@ -42,7 +46,7 @@ export default class PostsController {
 
   @Put(':id')
   async replacePost(@Param('id') id: string, @Body() post: UpdatePostDto) {
-    return this.postsService.replacePost(Number(id), post);
+    return this.postsService.updatePost(Number(id), post);
   }
 
   @Delete(':id')
