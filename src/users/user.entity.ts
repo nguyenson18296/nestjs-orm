@@ -44,6 +44,9 @@ class User {
     nullable: true,
   })
   public avatar?: PublicFile;
+
+  @Exclude()
+  public currentHashedRefreshToken?: string;
 }
 
 export default User;
