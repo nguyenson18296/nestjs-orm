@@ -7,6 +7,7 @@ import { UpdatePostDto } from './dto/updatePost.dto';
 import PostEntity from './post.entity';
 import PostNotFoundException from './exception/postNotFound.exception';
 import User from 'src/users/user.entity';
+import { IQueriesPost } from './types/types';
 
 @Injectable()
 export default class PostsService {
@@ -20,6 +21,14 @@ export default class PostsService {
 
   async getAllPosts() {
     return this.postsRepository.find({ relations: ['author', 'categories'] });
+  }
+
+  async getAllPostsByQuery(query: IQueriesPost) {
+    return this.postsRepository.find({
+      where: {
+        ...query,
+      },
+    });
   }
 
   async getPostById(id: number) {
