@@ -44,6 +44,13 @@ export default class PostsService {
     throw new PostNotFoundException(id);
   }
 
+  async getPostsWithParagraph(paragraph: string) {
+    return this.postsRepository.query(
+      'SELECT * from post WHERE $1 = ANY(paragraphs)',
+      [paragraph],
+    );
+  }
+
   async replacePost(id: number, post: UpdatePostDto) {
     await this.postsRepository.update(id, post);
     const updatedPost = await this.postsRepository.findOne({

@@ -45,6 +45,9 @@ class User {
   })
   public avatar?: PublicFile;
 
+  @Column({
+    nullable: true,
+  })
   @Exclude()
   public currentHashedRefreshToken?: string;
 }

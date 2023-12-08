@@ -13,7 +13,6 @@ class CloudStorageService {
     this.storage = new Storage({
       projectId: 'named-nomad-407218',
     });
-    console.log('storage', this.storage);
     this.bucket = this.storage.bucket('nestjs');
   }
 
@@ -39,10 +38,9 @@ class CloudStorageService {
       this.setDestination(destination) + this.setFilename(uploadedFile);
     const file = this.bucket.file(fileName);
     try {
-      const response = await file.save(uploadedFile.buffer, {
+      await file.save(uploadedFile.buffer, {
         contentType: uploadedFile.mimetype,
       });
-      console.log('response', response);
     } catch (error) {
       throw new BadRequestException(error?.message);
     }
