@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-class Category {
+class Product {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -13,6 +13,15 @@ class Category {
 
   @Column({ nullable: true })
   public thumbnail: string;
+
+  @Column()
+  public description: string;
+
+  @Column({ nullable: true })
+  public price: string;
+
+  @Column({ nullable: true })
+  public discount_price: string;
 }
 
-export default Category;
+export default Product;
