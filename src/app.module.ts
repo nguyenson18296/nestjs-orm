@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
-import { PostsModule } from './posts/posts.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
+
+import { PostsModule } from './posts/posts.module';
+import { CategoriesModule } from './categories/categories.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
     PostsModule,
+    CategoriesModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
