@@ -13,8 +13,45 @@ export default class ProductsService {
     private productsRepository: Repository<Product>,
   ) {}
 
-  getAllProducts() {
-    return this.productsRepository.find();
+  async getAllProducts(
+    category_ids?: string[],
+    min_price?: string,
+    max_price?: string,
+  ) {
+    const query = await this.productsRepository.createQueryBuilder('product');
+
+    if (category_ids?.length > 0) {
+      query
+        .leftJoinAndSelect('product.category', 'category')
+        .where('category.id IN (:...category_ids)', { category_ids });
+    }
+
+    if (!!min_price) {
+      query.andWhere(`product.price >= :minPrice`, { minPrice: min_price });
+    }
+
+    if (!!max_price) {
+      query.andWhere(`product.price <= :maxPrice`, { maxPrice: +max_price });
+    }
+
+    const [result, total] = await query.getManyAndCount();
+
+    return {
+      data: result,
+      total,
+      status: HttpStatus.OK,
+    };
+
+    // const [result, total] = await this.productsRepository
+    //   .createQueryBuilder('post')
+    //   .leftJoinAndSelect('post.category', 'category')
+    //   .getManyAndCount();
+
+    // return {
+    //   data: result,
+    //   total,
+    //   status: HttpStatus.OK,
+    // };
   }
 
   async createProduct(product: CreateProductDto) {

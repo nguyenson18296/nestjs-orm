@@ -33,4 +33,20 @@ export default class CategoriesService {
     await this.categoryRepository.save(newCategory);
     return newCategory;
   }
+
+  async deleteCateogry(id: number) {
+    try {
+      await this.categoryRepository.delete(id);
+      return {
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: e,
+        status: HttpStatus.BAD_REQUEST,
+      };
+    }
+  }
 }
