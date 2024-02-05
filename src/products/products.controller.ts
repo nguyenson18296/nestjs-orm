@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Put,
   Param,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -16,6 +17,7 @@ import ProductsService from './products.service';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UpdateProductDto } from './dto/updateProduct.dto';
+import { isEmpty } from '../utils/utils';
 
 @Controller('products')
 export default class ProductsController {
@@ -25,7 +27,19 @@ export default class ProductsController {
   ) {}
 
   @Get()
-  getAllProducts() {
+  getAllProducts(
+    @Query()
+    query?: {
+      category_ids?: string;
+      min_price: string;
+      max_price: string;
+    },
+  ) {
+    if (!isEmpty(query)) {
+      const { category_ids, min_price, max_price } = query;
+      const ids = category_ids?.split(',');
+      return this.productsService.getAllProducts(ids, min_price, max_price);
+    }
     return this.productsService.getAllProducts();
   }
 

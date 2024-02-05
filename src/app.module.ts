@@ -8,8 +8,6 @@ import { ProductsModule } from './products/products.module';
 import { UploadModule } from './upload/upload.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { DatabaseModule } from './database/database.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 
 @Module({
   imports: [
@@ -29,10 +27,6 @@ import { join } from 'path';
       }),
     }),
     DatabaseModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'dist/uploads'),
-      exclude: ['/api/(.*)'],
-    }),
   ],
   controllers: [],
   providers: [],

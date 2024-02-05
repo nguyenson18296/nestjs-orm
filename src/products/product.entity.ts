@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
+import Category from 'src/categories/category.entity';
 
 @Entity()
 class Product {
@@ -17,11 +25,17 @@ class Product {
   @Column()
   public description: string;
 
-  @Column({ nullable: true })
+  @Column('numeric', {
+    nullable: true,
+  })
   public price: string;
 
-  @Column({ nullable: true })
+  @Column('numeric', { nullable: true })
   public discount_price: string;
+
+  @ManyToOne(() => Category)
+  @JoinColumn()
+  public category: Category;
 }
 
 export default Product;
