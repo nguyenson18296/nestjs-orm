@@ -31,14 +31,22 @@ export default class ProductsController {
     @Query()
     query?: {
       category_ids?: string;
-      min_price: string;
-      max_price: string;
+      min_price?: string;
+      max_price?: string;
+      limit?: string;
+      offset?: string;
     },
   ) {
     if (!isEmpty(query)) {
-      const { category_ids, min_price, max_price } = query;
+      const { category_ids, min_price, max_price, limit, offset } = query;
       const ids = category_ids?.split(',');
-      return this.productsService.getAllProducts(ids, min_price, max_price);
+      return this.productsService.getAllProducts(
+        ids,
+        min_price,
+        max_price,
+        limit,
+        offset,
+      );
     }
     return this.productsService.getAllProducts();
   }

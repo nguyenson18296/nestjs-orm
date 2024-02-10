@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import Product from './product.entity';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
+import { isNumber } from 'src/utils/utils';
 
 @Injectable()
 export default class ProductsService {
@@ -17,8 +18,18 @@ export default class ProductsService {
     category_ids?: string[],
     min_price?: string,
     max_price?: string,
+    limit?: string,
+    offset?: string,
   ) {
     const query = await this.productsRepository.createQueryBuilder('product');
+
+    if (!!limit && isNumber(+limit)) {
+      query.limit(+limit);
+    }
+
+    if (!!offset && isNumber(+offset)) {
+      query.offset(+offset);
+    }
 
     if (category_ids?.length > 0) {
       query
@@ -27,7 +38,7 @@ export default class ProductsService {
     }
 
     if (!!min_price) {
-      query.andWhere(`product.price >= :minPrice`, { minPrice: min_price });
+      query.andWhere(`product.price >= :minPrice`, { minPrice: +min_price });
     }
 
     if (!!max_price) {
