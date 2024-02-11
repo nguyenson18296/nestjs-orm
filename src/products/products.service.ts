@@ -41,17 +41,28 @@ export default class ProductsService {
       total,
       status: HttpStatus.OK,
     };
+  }
 
-    // const [result, total] = await this.productsRepository
-    //   .createQueryBuilder('post')
-    //   .leftJoinAndSelect('post.category', 'category')
-    //   .getManyAndCount();
+  async getProductDetail(slug: string) {
+    const result = await this.productsRepository.findOne({
+      where: {
+        slug: slug,
+      },
+    });
 
-    // return {
-    //   data: result,
-    //   total,
-    //   status: HttpStatus.OK,
-    // };
+    if (result) {
+      return {
+        data: result,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    }
+
+    return {
+      data: null,
+      success: false,
+      status: HttpStatus.NOT_FOUND,
+    };
   }
 
   async createProduct(product: CreateProductDto) {

@@ -5,6 +5,7 @@ import * as Joi from '@hapi/joi';
 import { PostsModule } from './posts/posts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
+import { ImagesModule } from './images/images.module';
 import { UploadModule } from './upload/upload.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { DatabaseModule } from './database/database.module';
@@ -16,6 +17,7 @@ import { DatabaseModule } from './database/database.module';
     ProductsModule,
     UploadModule,
     CloudinaryModule,
+    ImagesModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
