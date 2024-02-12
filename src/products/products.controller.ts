@@ -43,6 +43,13 @@ export default class ProductsController {
     return this.productsService.getAllProducts();
   }
 
+  @Get(':slug')
+  async getProductDetail(@Param() { slug }: { slug: string }) {
+    const product = await this.productsService.getProductDetail(slug);
+
+    return product;
+  }
+
   @Post()
   @UseInterceptors(FileInterceptor('thumbnail'))
   async createProduct(

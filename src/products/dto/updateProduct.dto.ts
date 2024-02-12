@@ -5,4 +5,5 @@ export class UpdateProductDto {
   description?: string;
   price?: string;
   discount_price?: string;
+  images?: string;
 }
