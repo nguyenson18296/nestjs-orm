@@ -43,6 +43,11 @@ export default class ProductsController {
     return this.productsService.getAllProducts();
   }
 
+  @Get('random')
+  getRandomProducts() {
+    return this.productsService.getRandomProducts(5);
+  }
+
   @Get(':slug')
   async getProductDetail(@Param() { slug }: { slug: string }) {
     const product = await this.productsService.getProductDetail(slug);
