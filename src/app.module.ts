@@ -9,6 +9,8 @@ import { ImagesModule } from './images/images.module';
 import { UploadModule } from './upload/upload.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { DatabaseModule } from './database/database.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { DatabaseModule } from './database/database.module';
       }),
     }),
     DatabaseModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],

@@ -43,6 +43,28 @@ export default class ProductsService {
     };
   }
 
+  async getRandomProducts(numberOfRow: number) {
+    try {
+      const result = await this.productsRepository
+        .createQueryBuilder('product')
+        .orderBy('RANDOM()')
+        .limit(numberOfRow)
+        .getMany();
+
+      return {
+        data: result,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      return {
+        data: null as any,
+        success: false,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
   async getProductDetail(slug: string) {
     const result = await this.productsRepository.findOne({
       where: {

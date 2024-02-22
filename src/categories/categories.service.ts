@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import Category from './category.entity';
 import { CreateCategoryDto } from './dto/createCategory.dto';
+import { UpdateCategoryDto } from './dto/updateCategory.dto';
 
 @Injectable()
 export default class CategoriesService {
@@ -32,6 +33,19 @@ export default class CategoriesService {
     const newCategory = this.categoryRepository.create(category);
     await this.categoryRepository.save(newCategory);
     return newCategory;
+  }
+
+  async updateCategory(id: number, category: UpdateCategoryDto) {
+    await this.categoryRepository.update(id, category);
+    const updatedCategory = await this.categoryRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (updatedCategory) {
+      return updatedCategory;
+    }
+    throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
   }
 
   async deleteCateogry(id: number) {
