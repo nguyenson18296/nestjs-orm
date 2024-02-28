@@ -6,10 +6,12 @@ import {
   PrimaryGeneratedColumn,
   BeforeInsert,
   BeforeUpdate,
+  OneToMany,
 } from 'typeorm';
 
 import Category from 'src/categories/category.entity';
 import { generateSlug } from 'src/utils/utils';
+import ProductReviews from 'src/product-reviews/product-reviews.entity';
 
 @Entity()
 class Product {
@@ -42,6 +44,9 @@ class Product {
   @ManyToOne(() => Category)
   @JoinColumn()
   public category: Category;
+
+  @OneToMany(() => ProductReviews, (comments) => comments.product)
+  public comments: ProductReviews[];
 
   @BeforeInsert()
   @BeforeUpdate()
