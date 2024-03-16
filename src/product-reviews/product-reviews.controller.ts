@@ -1,4 +1,5 @@
 import {
+  Get,
   Body,
   Controller,
   HttpException,
@@ -12,18 +13,24 @@ import { ProductReviewsService } from './product-reviews.service';
 export class ProductReviewsController {
   constructor(private readonly productReviewsService: ProductReviewsService) {}
 
-  @Post()
-  async createReview(
-    userId: number,
-    productId: number,
-    @Body() comment: CreateReviewsProductDto,
-  ) {
+  @Get()
+  async getComments() {
     try {
-      return this.productReviewsService.createComment(
-        userId,
-        productId,
-        comment,
-      );
+      return this.productReviewsService.getAllCategories();
+    } catch (e) {
+      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post()
+  async createReview(@Body() comment: CreateReviewsProductDto) {
+    try {
+      return this.productReviewsService.createComment({
+        user_id: comment.user_id,
+        product_id: comment.product_id,
+        content: comment.content,
+        parent_comment_id: comment.parent_comment_id,
+      });
     } catch (e) {
       throw new HttpException('Error', HttpStatus.BAD_REQUEST);
     }

@@ -1,9 +1,11 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
 } from 'typeorm';
 
 import User from 'src/users/user.entity';
@@ -17,11 +19,24 @@ class ProductReviews {
   @Column()
   public content: string;
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User, (user) => user.comments)
+  @JoinColumn()
   public user: User;
 
   @ManyToOne(() => Product, (product) => product.comments)
+  @JoinColumn()
   public product: Product;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @ManyToOne(() => ProductReviews, (comment) => comment.replies, {
+    nullable: true,
+  })
+  parent_comment: ProductReviews;
+
+  @OneToMany(() => ProductReviews, (comment) => comment.parent_comment)
+  replies: ProductReviews[];
 }
 
 export default ProductReviews;

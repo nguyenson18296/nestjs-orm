@@ -70,6 +70,14 @@ export default class ProductsService {
       where: {
         slug: slug,
       },
+      relations: {
+        comments: {
+          user: true,
+          replies: {
+            user: true,
+          },
+        },
+      },
     });
 
     if (result) {
