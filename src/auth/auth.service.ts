@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
@@ -13,21 +13,32 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async singIn(data: LoginDto): Promise<{ data: User; access_token: string }> {
+  async singIn(data: LoginDto): Promise<{
+    data: User;
+    access_token?: string;
+    status?: HttpStatus;
+    success: boolean;
+  }> {
     const user = await this.usersService.findOneUser(data.username);
+    console.log('user', user);
 
-    const isMatch = await bcrypt.compare(data.password, user?.password);
-    if (!isMatch) {
-      throw new UnauthorizedException();
+    if (user) {
+      const isMatch = await bcrypt.compare(data.password, user?.password);
+
+      if (!isMatch) {
+        throw new UnauthorizedException();
+      }
+      delete user.password;
+      const payload = { email: user.email };
+      return {
+        data: user,
+        success: true,
+        access_token: await this.jwtService.signAsync(payload, {
+          secret: 'secret',
+        }),
+      };
     }
 
-    delete user.password;
-    const payload = { email: user.email };
-    return {
-      data: user,
-      access_token: await this.jwtService.signAsync(payload, {
-        secret: 'secret',
-      }),
-    };
+    throw new UnauthorizedException();
   }
 }
