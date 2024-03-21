@@ -4,10 +4,13 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUser.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Controller('users')
 export default class UsersController {
@@ -29,5 +32,13 @@ export default class UsersController {
     } catch (e) {
       throw new HttpException('Error', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  @Put(':id')
+  async updateUseById(
+    @Body() user: UpdateUserDto,
+    @Param() { id }: { id: number },
+  ) {
+    return this.usersService.updateUser(user, id);
   }
 }
