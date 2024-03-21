@@ -1,10 +1,11 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import User from './user.entity';
 import { CreateUserDto } from './dto/createUser.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 const saltOrRounds = 10;
 
@@ -69,5 +70,23 @@ export class UsersService {
     const newUser = await this.userRepository.create(data);
     await this.userRepository.save(newUser);
     return newUser;
+  }
+
+  async updateUser(userDto: UpdateUserDto, userId: number) {
+    try {
+      const user = await this.userRepository
+        .createQueryBuilder()
+        .update(User)
+        .set(userDto)
+        .where('id = :id', { id: userId })
+        .execute();
+      return {
+        success: true,
+        status: HttpStatus.OK,
+        data: user,
+      };
+    } catch (e) {
+      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import ProductReviews from '../product-reviews/product-reviews.entity';
+import { Role } from './roles/role.enum';
 
 @Entity()
 class User {
@@ -20,6 +21,13 @@ class User {
 
   @Column({ nullable: true })
   avatar: string;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.User,
+  })
+  role: Role;
 
   @OneToMany(() => ProductReviews, (comment) => comment.user)
   comments: Comment[];

@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { CreateReviewsProductDto } from './dto/createReviewDto';
+import { UpdateReviewDto } from './dto/updateReviewDto';
 import User from 'src/users/user.entity';
 import Product from 'src/products/product.entity';
 
@@ -23,8 +24,21 @@ export class ProductReviewsService {
     private productsRepository: Repository<Product>,
   ) {}
 
-  getAllCategories() {
-    return this.reviewsRepository.find();
+  async getAllProductReviews() {
+    try {
+      const response = await this.reviewsRepository.find();
+      return {
+        success: true,
+        status: HttpStatus.OK,
+        data: response,
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: e,
+        status: HttpStatus.BAD_REQUEST,
+      };
+    }
   }
 
   async createComment({
@@ -71,6 +85,46 @@ export class ProductReviewsService {
     });
 
     await this.reviewsRepository.save(newComment);
-    return newComment;
+    return {
+      success: true,
+      status: HttpStatus.OK,
+      ...newComment,
+    };
+  }
+
+  async updateComment(comment_id: number, content: UpdateReviewDto) {
+    try {
+      const response = await this.reviewsRepository
+        .createQueryBuilder()
+        .update(ProductReviews)
+        .set({ content: content.content })
+        .where('id = :id', { id: comment_id })
+        .execute();
+      console.log('response', response);
+      return {
+        success: true,
+        status: HttpStatus.OK,
+        data: response,
+      };
+    } catch (e) {
+      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async deleteComment(comment_id: number) {
+    try {
+      await this.reviewsRepository
+        .createQueryBuilder()
+        .delete()
+        .from(ProductReviews)
+        .where('id = :id', { id: comment_id })
+        .execute();
+      return {
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
+    }
   }
 }
