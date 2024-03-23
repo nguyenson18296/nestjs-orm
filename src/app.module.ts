@@ -12,6 +12,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProductReviewsModule } from './product-reviews/product-reviews.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ProductReviewsModule } from './product-reviews/product-reviews.module';
     AuthModule,
     UsersModule,
     ProductReviewsModule,
+    CartModule,
   ],
   controllers: [],
   providers: [],

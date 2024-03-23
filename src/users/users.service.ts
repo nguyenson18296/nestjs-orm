@@ -51,6 +51,28 @@ export class UsersService {
     };
   }
 
+  async findUserById(id: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      return {
+        data: null,
+        success: false,
+        status: HttpStatus.NOT_FOUND,
+      };
+    }
+
+    return {
+      data: user,
+      success: true,
+      status: HttpStatus.OK,
+    };
+  }
+
   async findOneUser(username: string) {
     const user = await this.userRepository.findOne({
       where: {

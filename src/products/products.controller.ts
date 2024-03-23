@@ -50,6 +50,7 @@ export default class ProductsController {
 
   @Get(':slug')
   async getProductDetail(@Param() { slug }: { slug: string }) {
+    console.log('slug', slug);
     const product = await this.productsService.getProductDetail(slug);
 
     return product;

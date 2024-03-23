@@ -34,6 +34,11 @@ export default class UsersController {
     }
   }
 
+  @Get(':id')
+  async getUserById(@Param() { id }: { id: number }) {
+    return this.usersService.findUserById(id);
+  }
+
   @Put(':id')
   async updateUseById(
     @Body() user: UpdateUserDto,
