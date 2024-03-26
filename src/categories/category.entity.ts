@@ -16,7 +16,7 @@ class Category {
   public thumbnail: string;
 
   @OneToMany(() => Product, (product: Product) => product)
-  public product: Product;
+  public products: Product;
 }
 
 export default Category;

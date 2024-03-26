@@ -17,7 +17,9 @@ export default class ProductsService {
     category_ids?: string[],
     min_price?: string,
     max_price?: string,
+    search?: string,
   ) {
+    console.log('search', search);
     const query = await this.productsRepository.createQueryBuilder('product');
 
     if (category_ids?.length > 0) {
@@ -33,6 +35,17 @@ export default class ProductsService {
     if (!!max_price) {
       query.andWhere(`product.price <= :maxPrice`, { maxPrice: +max_price });
     }
+
+    if (!!search) {
+      query.andWhere(
+        `LOWER(unaccent(product.title)) like LOWER(unaccent(:title))`,
+        {
+          title: `%${search}%`,
+        },
+      );
+    }
+
+    query.leftJoinAndSelect('product.category', 'category');
 
     const [result, total] = await query.getManyAndCount();
 
@@ -62,6 +75,22 @@ export default class ProductsService {
         success: false,
         status: HttpStatus.INTERNAL_SERVER_ERROR,
       };
+    }
+  }
+
+  async searchProducts(name: string) {
+    try {
+      const product = await this.productsRepository
+        .createQueryBuilder('product')
+        .where('product.title like :name', { name })
+        .getMany();
+      return {
+        success: true,
+        status: HttpStatus.OK,
+        data: product,
+      };
+    } catch (e) {
+      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
     }
   }
 

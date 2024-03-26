@@ -41,7 +41,7 @@ class Product {
   @Column('numeric', { nullable: true })
   public discount_price: string;
 
-  @ManyToOne(() => Category)
+  @ManyToOne(() => Category, (category) => category.products)
   @JoinColumn()
   public category: Category;
 
