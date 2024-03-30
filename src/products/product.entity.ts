@@ -7,6 +7,8 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import Category from 'src/categories/category.entity';
@@ -42,8 +44,14 @@ class Product {
   public discount_price: string;
 
   @ManyToOne(() => Category, (category) => category.products)
-  @JoinColumn()
   public category: Category;
+
+  @ManyToOne(() => Category)
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 
   @OneToMany(() => ProductReviews, (comments) => comments.product)
   public comments: ProductReviews[];

@@ -131,15 +131,31 @@ export default class ProductsService {
   }
 
   async updateProduct(id: number, product: UpdateProductDto) {
-    await this.productsRepository.update(id, product);
-    const updatedProduct = await this.productsRepository.findOne({
-      where: {
-        id,
-      },
-    });
-    if (updatedProduct) {
+    try {
+      // Perform the update operation
+      const updateResult = await this.productsRepository.update(id, product);
+
+      // Check if the entity was found and updated
+      if (updateResult.affected === 0) {
+        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+      }
+
+      // Retrieve the updated entity
+      const updatedProduct = await this.productsRepository.findOneBy({ id });
+      if (!updatedProduct) {
+        throw new HttpException(
+          'Product not found after update',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      // Return the updated entity
       return updatedProduct;
+    } catch (e) {
+      throw new HttpException(
+        'Error updating product: ' + e.message,
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
   }
 }
