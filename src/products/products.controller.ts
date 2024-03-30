@@ -79,14 +79,16 @@ export default class ProductsController {
   }
 
   @Put(':id')
+  // @UseInterceptors(FileInterceptor('thumbnail')) // 'thumbnail' is the name of the file field in your FormData
   async editProduct(
-    @Param() { id }: { id: number },
-    @Body() productDto: UpdateProductDto,
+    @Param('id') id: number, // Simplified param destructuring
+    @Body() product: UpdateProductDto,
+    // @UploadedFile() thumbnail?: Express.Multer.File,
   ) {
-    const updatedProduct = await this.productsService.updateProduct(
-      id,
-      productDto,
-    );
-    return updatedProduct;
+    try {
+      return this.productsService.updateProduct(id, product);
+    } catch (e) {
+      throw new HttpException('Error' + e, HttpStatus.BAD_REQUEST);
+    }
   }
 }
