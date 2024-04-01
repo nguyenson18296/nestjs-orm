@@ -8,6 +8,7 @@ import ProductsService from 'src/products/products.service';
 import { UsersService } from 'src/users/users.service';
 import User from 'src/users/user.entity';
 import Product from 'src/products/product.entity';
+import { NotificationService } from 'src/notifications/notifications.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ProductReviews, User, Product])],

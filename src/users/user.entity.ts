@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import ProductReviews from '../product-reviews/product-reviews.entity';
 import { Role } from './roles/role.enum';
+import { Notification } from 'src/notifications/notification.entity';
 
 @Entity()
 class User {
@@ -31,6 +32,9 @@ class User {
 
   @OneToMany(() => ProductReviews, (comment) => comment.user)
   comments: Comment[];
+
+  @OneToMany(() => Notification, (notifications) => notifications.user)
+  notifications: Notification[];
 }
 
 export default User;
