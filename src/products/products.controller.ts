@@ -18,12 +18,14 @@ import { CreateProductDto } from './dto/createProduct.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UpdateProductDto } from './dto/updateProduct.dto';
 import { isEmpty } from '../utils/utils';
+import { NotificationService } from 'src/notifications/notifications.service';
 
 @Controller('products')
 export default class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly notificationsService: NotificationService,
   ) {}
 
   @Get()
@@ -72,7 +74,12 @@ export default class ProductsController {
       if (file) {
         product.thumbnail = file.url;
       }
-      return this.productsService.createProduct(product);
+      await this.productsService.createProduct(product);
+      this.notificationsService.sendNotification({
+        message: 'Có sản phẩm được cập nhật',
+        type: 'update',
+        category: 'product',
+      });
     } catch (e) {
       throw new HttpException('Error', HttpStatus.BAD_REQUEST);
     }
@@ -82,11 +89,24 @@ export default class ProductsController {
   // @UseInterceptors(FileInterceptor('thumbnail')) // 'thumbnail' is the name of the file field in your FormData
   async editProduct(
     @Param('id') id: number, // Simplified param destructuring
-    @Body() product: UpdateProductDto,
+    @Body() product: UpdateProductDto & { user_id: number },
     // @UploadedFile() thumbnail?: Express.Multer.File,
   ) {
+    const userId = product.user_id;
+    delete product.user_id;
     try {
-      return this.productsService.updateProduct(id, product);
+      const updatedProduct = await this.productsService.updateProduct(
+        id,
+        product,
+      );
+      this.notificationsService.createNotification(
+        {
+          type: 'update',
+          message: `Sản phẩm ${updatedProduct.title} được cập nhật`,
+          is_read: false,
+        },
+        userId,
+      );
     } catch (e) {
       throw new HttpException('Error' + e, HttpStatus.BAD_REQUEST);
     }

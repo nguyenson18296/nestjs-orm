@@ -10,7 +10,7 @@ import { UpdateProductDto } from './dto/updateProduct.dto';
 export default class ProductsService {
   constructor(
     @InjectRepository(Product)
-    private productsRepository: Repository<Product>,
+    private productsRepository: Repository<Product>, // private notificationService: NotificationService,
   ) {}
 
   async getAllProducts(
@@ -19,7 +19,6 @@ export default class ProductsService {
     max_price?: string,
     search?: string,
   ) {
-    console.log('search', search);
     const query = await this.productsRepository.createQueryBuilder('product');
 
     if (category_ids?.length > 0) {
@@ -148,7 +147,11 @@ export default class ProductsService {
           HttpStatus.NOT_FOUND,
         );
       }
-
+      // console.log("updatedProduct", updatedProduct);
+      // this.notificationService.sendNotification({
+      //   message: 'Có tài khoản được cập nhật',
+      //   type: 'update',
+      // });
       // Return the updated entity
       return updatedProduct;
     } catch (e) {
