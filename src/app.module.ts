@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
+import { PassportModule } from '@nestjs/passport';
 
 import { PostsModule } from './posts/posts.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -39,6 +40,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ProductReviewsModule,
     CartModule,
     NotificationsModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [],
   providers: [],

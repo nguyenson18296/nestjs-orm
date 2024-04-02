@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
@@ -19,9 +19,7 @@ export class AuthService {
     status?: HttpStatus;
     success: boolean;
   }> {
-    const user = await this.usersService.findOneUser(data.username);
-    console.log('user', user);
-
+    const user = await this.usersService.findOneUser(data.email);
     if (user) {
       const isMatch = await bcrypt.compare(data.password, user?.password);
 
@@ -29,7 +27,7 @@ export class AuthService {
         throw new UnauthorizedException();
       }
       delete user.password;
-      const payload = { email: user.email };
+      const payload = { email: user.email, user_id: user.id };
       return {
         data: user,
         success: true,
@@ -40,5 +38,21 @@ export class AuthService {
     }
 
     throw new UnauthorizedException();
+  }
+
+  async getMe(email: string) {
+    try {
+      const user = await this.usersService.findOneUser(email);
+      if (!user) {
+        throw new HttpException('Error', HttpStatus.NOT_FOUND);
+      }
+      return {
+        data: user,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error' + e, HttpStatus.BAD_REQUEST);
+    }
   }
 }

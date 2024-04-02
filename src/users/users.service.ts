@@ -73,10 +73,10 @@ export class UsersService {
     };
   }
 
-  async findOneUser(username: string) {
+  async findOneUser(email: string) {
     const user = await this.userRepository.findOne({
       where: {
-        username,
+        email,
       },
     });
 

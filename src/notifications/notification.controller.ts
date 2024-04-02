@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { NotificationService } from './notifications.service';
 
 import { CreateNotificationDto } from './dto/createNotificationDto';
@@ -8,6 +17,7 @@ export default class NotificationsController {
   constructor(private readonly notificationsService: NotificationService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   createUserNotification(
     @Body() notification: CreateNotificationDto,
     user_id: number,
@@ -15,9 +25,9 @@ export default class NotificationsController {
     return this.notificationsService.createNotification(notification, user_id);
   }
 
-  @Get(':id')
-  getUserNotifications(@Param(':id') id: number) {
-    console.log('id', id);
-    return this.notificationsService.getNotificationsByUser(id);
+  @Get()
+  @UseGuards(AuthGuard('jwt'))
+  getUserNotifications(@Request() req: any) {
+    return this.notificationsService.getNotificationsByUser(req.user.user_id);
   }
 }
