@@ -7,11 +7,14 @@ import {
   HttpStatus,
   Param,
   Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 
 import { ICreateCartDto } from './dto/createCartDto';
 import { CartItemService } from './cartItem.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('cart')
 export class CartController {
@@ -32,9 +35,10 @@ export class CartController {
     }
   }
 
-  @Get(':id')
-  getUserCart(@Param('id') id: string) {
-    return this.cartsService.getUserCart(Number(id));
+  @Get()
+  @UseGuards(AuthGuard('jwt'))
+  getUserCart(@Request() req: any) {
+    return this.cartsService.getUserCart(Number(req.user.user_id));
   }
 
   @Delete('/cart-item/:id')
