@@ -10,6 +10,9 @@ class Category {
   public title: string;
 
   @Column({ nullable: true })
+  public orders: number;
+
+  @Column({ nullable: true })
   public slug: string;
 
   @Column({ nullable: true })

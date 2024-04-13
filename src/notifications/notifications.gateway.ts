@@ -33,7 +33,6 @@ export class NotificationsGateway
   }
 
   sendToAll(msg: any) {
-    console.log("notificationData", msg);
     this.wss.emit('notificationToClient', msg);
   }
 }

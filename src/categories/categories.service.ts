@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 
 import Category from './category.entity';
 import { CreateCategoryDto } from './dto/createCategory.dto';
@@ -14,7 +14,11 @@ export default class CategoriesService {
   ) {}
 
   getAllCategories() {
-    return this.categoryRepository.find();
+    return this.categoryRepository.find({
+      order: {
+        orders: 'ASC',
+      },
+    });
   }
 
   async getCategoryById(id: number) {
@@ -48,7 +52,43 @@ export default class CategoriesService {
     throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
   }
 
-  async deleteCateogry(id: number) {
+  async updateCategoryOrder(categoryId: number, orderNumber: number) {
+    console.log('orderNumber', orderNumber);
+    // Begin transaction
+    await this.categoryRepository.manager.transaction(async (entityManager) => {
+      const item = await entityManager.findOne(Category, {
+        where: {
+          id: categoryId,
+        },
+      });
+      console.log('item', item);
+      if (!item) {
+        throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+      }
+
+      const affectedItems = await entityManager.find(Category, {
+        where: {
+          orders: MoreThanOrEqual(orderNumber),
+        },
+        order: {
+          orders: 'ASC',
+        },
+      });
+
+      item.orders = orderNumber;
+      await entityManager.save(item);
+
+      // Increment the order of subsequent items
+      for (const i of affectedItems) {
+        if (i.id !== item.id) {
+          i.orders += 1;
+          await entityManager.save(i);
+        }
+      }
+    });
+  }
+
+  async deleteCategory(id: number) {
     try {
       await this.categoryRepository.delete(id);
       return {
