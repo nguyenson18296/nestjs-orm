@@ -5,11 +5,11 @@ export const isNumber = (value: any): value is number => {
   return typeof value === 'number' && isFinite(value);
 };
 
-export const generateSlug = (title: string) => {
-  return title
+export const generateSlug = (inputString: string): string => {
+  return inputString
     .toLowerCase() // Convert to lowercase
-    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
-    .replace(/[^\w-]+/g, '') // Remove all non-word chars
-    .replace(/--+/g, '-') // Replace multiple hyphens with a single hyphen
-    .trim(); // Trim hyphens at the start and end of the slug
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/[^a-z0-9-]/g, '') // Remove all non-alphanumeric characters except hyphens
+    .replace(/^-+|-+$/g, '')
+    .trim(); // Trim hyphens from start and end
 };

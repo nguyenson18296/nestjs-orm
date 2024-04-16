@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import ProductReviews from '../product-reviews/product-reviews.entity';
 import { Role } from './roles/role.enum';
 import { Notification } from 'src/notifications/notification.entity';
+import Post from 'src/posts/post.entity';
 
 @Entity()
 class User {
@@ -32,6 +33,10 @@ class User {
 
   @OneToMany(() => ProductReviews, (comment) => comment.user)
   comments: Comment[];
+
+  @OneToMany(() => Post, (posts) => posts, { cascade: true })
+  @JoinColumn()
+  posts: Post[];
 
   @OneToMany(() => Notification, (notifications) => notifications.user)
   notifications: Notification[];
