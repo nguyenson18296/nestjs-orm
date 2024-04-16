@@ -15,6 +15,7 @@ import { UsersModule } from './users/users.module';
 import { ProductReviewsModule } from './product-reviews/product-reviews.module';
 import { CartModule } from './cart/cart.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import PostTagModule from './post-tag/post-tag.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ProductReviewsModule,
     CartModule,
     NotificationsModule,
+    PostTagModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [],

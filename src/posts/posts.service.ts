@@ -5,22 +5,56 @@ import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/createPost.dto';
 import Post from './post.entity';
 import { UpdatePostDto } from './dto/updatePost.dto';
+import User from 'src/users/user.entity';
+import { generateSlug } from 'src/utils/utils';
 
 @Injectable()
 export default class PostsService {
   constructor(
     @InjectRepository(Post)
     private postsRepository: Repository<Post>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {}
 
   getAllPosts() {
-    return this.postsRepository.find();
+    return this.postsRepository.find({
+      relations: {
+        user: true,
+      },
+    });
   }
 
-  async getPostById(id: number) {
+  async getRandomPosts(offset: number) {
+    try {
+      const result = await this.postsRepository
+        .createQueryBuilder('post')
+        .orderBy('RANDOM()')
+        .offset(offset)
+        .limit(12)
+        .getMany();
+
+      return {
+        data: result,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      return {
+        data: null as any,
+        success: false,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async getPostBySlug(slug: string) {
     const post = await this.postsRepository.findOne({
       where: {
-        id,
+        slug,
+      },
+      relations: {
+        user: true,
       },
     });
     if (post) {
@@ -30,22 +64,31 @@ export default class PostsService {
   }
 
   async createPost(post: CreatePostDto) {
-    const newPost = await this.postsRepository.create(post);
-    await this.postsRepository.save(newPost);
-    return newPost;
+    try {
+      const user = await this.usersRepository.findOne({
+        where: {
+          id: 1,
+        },
+      });
+      post.slug = generateSlug(post.title);
+      const newPost = await this.postsRepository.create({
+        ...post,
+        slug: post.slug,
+        user,
+      });
+      await this.postsRepository.save(newPost);
+      return newPost;
+    } catch (e) {
+      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async updatePost(id: number, post: UpdatePostDto) {
-    await this.postsRepository.update(id, post);
-    const updatedPost = await this.postsRepository.findOne({
-      where: {
-        id,
-      },
-    });
-    if (updatedPost) {
-      return updatedPost;
+    const updatedPost = await this.postsRepository.update(id, post);
+    if (updatedPost.affected === 0) {
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
     }
-    throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    return updatedPost;
   }
 
   async deletePost(id: number) {
@@ -53,5 +96,9 @@ export default class PostsService {
     if (!deleteResponse.affected) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
+
+    return {
+      success: true,
+    };
   }
 }
