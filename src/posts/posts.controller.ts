@@ -9,9 +9,12 @@ import {
   Post,
   Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
+  Request,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 import PostsService from './posts.service';
 import { CreatePostDto } from './dto/createPost.dto';
@@ -32,6 +35,17 @@ export default class PostsController {
     return this.postsService.getAllPosts();
   }
 
+  @Get('user/:user_id')
+  getAllPostsByUser(@Param('user_id') user_id: string) {
+    return this.postsService.getAllPostsByUser(+user_id);
+  }
+
+  @Get('/my-posts')
+  @UseGuards(AuthGuard('jwt'))
+  getMyPosts(@Request() req: any) {
+    return this.postsService.getAllPostsByUser(Number(req.user.user_id));
+  }
+
   @Get('/random')
   getRandomPosts(offset: number) {
     return this.postsService.getRandomPosts(offset);
@@ -43,9 +57,11 @@ export default class PostsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('thumbnail'))
   async createPost(
     @Body() post: CreatePostDto,
+    @Request() req: any,
     @UploadedFile() thumbnail: Express.Multer.File,
   ) {
     try {
@@ -57,12 +73,12 @@ export default class PostsController {
           post.cover_photo = '';
         }
       }
-      await this.postsService.createPost(post);
       this.notificationsService.sendNotification({
         message: 'Có bài viết được cập nhật',
         type: 'new',
         category: 'blogs',
       });
+      return this.postsService.createPost(post, Number(req.user.user_id));
     } catch (e) {
       throw new HttpException('Error Controller' + e, HttpStatus.BAD_REQUEST);
     }

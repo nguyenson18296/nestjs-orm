@@ -17,12 +17,43 @@ export default class PostsService {
     private usersRepository: Repository<User>,
   ) {}
 
-  getAllPosts() {
-    return this.postsRepository.find({
-      relations: {
-        user: true,
-      },
-    });
+  async getAllPosts() {
+    try {
+      const posts = await this.postsRepository.find({
+        relations: {
+          user: true,
+        },
+      });
+      return {
+        data: posts,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getAllPostsByUser(user_id: number) {
+    try {
+      const posts = await this.postsRepository.find({
+        where: {
+          user: {
+            id: user_id,
+          },
+        },
+        relations: {
+          user: true,
+        },
+      });
+      return {
+        data: posts,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async getRandomPosts(offset: number) {
@@ -63,11 +94,11 @@ export default class PostsService {
     throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
   }
 
-  async createPost(post: CreatePostDto) {
+  async createPost(post: CreatePostDto, user_id: number) {
     try {
       const user = await this.usersRepository.findOne({
         where: {
-          id: 1,
+          id: user_id,
         },
       });
       post.slug = generateSlug(post.title);
@@ -77,7 +108,11 @@ export default class PostsService {
         user,
       });
       await this.postsRepository.save(newPost);
-      return newPost;
+      return {
+        data: newPost,
+        status: HttpStatus.OK,
+        success: true,
+      };
     } catch (e) {
       throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
     }
