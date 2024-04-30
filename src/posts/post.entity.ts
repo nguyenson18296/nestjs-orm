@@ -51,6 +51,12 @@ class Post {
   @JoinTable()
   tags: PostTag[];
 
+  @Column({ default: 0 })
+  public priority: number;
+
+  @Column({ default: false })
+  public is_featured: boolean;
+
   @BeforeInsert()
   @BeforeUpdate()
   updateSlug() {
