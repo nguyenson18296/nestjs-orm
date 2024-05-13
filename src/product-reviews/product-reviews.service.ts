@@ -24,13 +24,30 @@ export class ProductReviewsService {
     private productsRepository: Repository<Product>,
   ) {}
 
-  async getAllProductReviews() {
+  async getAllProductReviews(product_id: number, user_id: number) {
     try {
-      const response = await this.reviewsRepository.find();
+      const response = await this.reviewsRepository.find({
+        where: {
+          product: {
+            id: product_id,
+          },
+        },
+        relations: {
+          user: true,
+          replies: true,
+        },
+      });
       return {
         success: true,
         status: HttpStatus.OK,
-        data: response,
+        data: response.map((data) => ({
+          ...data,
+          is_mine: data.user.id === user_id,
+          replies: data.replies.map((rep) => ({
+            ...rep,
+            is_mine: data.user.id === user_id,
+          })),
+        })),
       };
     } catch (e) {
       return {
@@ -81,7 +98,7 @@ export class ProductReviewsService {
       content,
       parent_comment: parentComment,
       user: userExists,
-      product: productExists,
+      product: parent_comment_id ? null : productExists,
     });
 
     await this.reviewsRepository.save(newComment);
@@ -100,7 +117,6 @@ export class ProductReviewsService {
         .set({ content: content.content })
         .where('id = :id', { id: comment_id })
         .execute();
-      console.log('response', response);
       return {
         success: true,
         status: HttpStatus.OK,

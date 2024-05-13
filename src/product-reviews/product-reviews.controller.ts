@@ -9,23 +9,30 @@ import {
   Param,
   UseGuards,
   Put,
+  Request,
 } from '@nestjs/common';
 import { CreateReviewsProductDto } from './dto/createReviewDto';
 import { ProductReviewsService } from './product-reviews.service';
-// import { Roles } from 'src/users/roles/roles.decorator';
-// import { Role } from 'src/users/roles/role.enum';
 import { RolesGuard } from 'src/users/roles/roles.guard';
 import { UpdateReviewDto } from './dto/updateReviewDto';
+import { OptionalJwtAuthGuard } from 'src/auth/optional-jwt-auth.guard';
 
 @Controller('product-reviews')
 @UseGuards(RolesGuard)
 export class ProductReviewsController {
   constructor(private readonly productReviewsService: ProductReviewsService) {}
 
-  @Get()
-  async getComments() {
+  @Get(':product_id')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getComments(
+    @Param('product_id') product_id: string,
+    @Request() req: any,
+  ) {
     try {
-      return this.productReviewsService.getAllProductReviews();
+      return this.productReviewsService.getAllProductReviews(
+        Number(product_id),
+        Number(req.user.user_id),
+      );
     } catch (e) {
       throw new HttpException('Error', HttpStatus.BAD_REQUEST);
     }
