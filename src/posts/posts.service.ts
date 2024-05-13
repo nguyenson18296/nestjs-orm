@@ -34,19 +34,41 @@ export default class PostsService {
     }
   }
 
-  async getAllPostsByUser(user_id: number) {
+  async getAllPostsByUser(user_id?: number, user_name?: string) {
     try {
-      const posts = await this.postsRepository.find({
+      interface WhereConditions {
+        user?: {
+          id?: number;
+          username?: string;
+        };
+      }
+      // Build the query conditionally based on provided parameters
+      const user = await this.usersRepository.findOne({
         where: {
-          user: {
-            id: user_id,
-          },
+          username: user_name,
         },
+      });
+      const whereConditions: WhereConditions = {};
+      if (user_id) {
+        whereConditions['user'] = {
+          ...whereConditions['user'],
+          id: user_id,
+        };
+      }
+      if (user_name) {
+        whereConditions['user'] = {
+          ...whereConditions['user'],
+          username: user_name,
+        };
+      }
+      const posts = await this.postsRepository.find({
+        where: whereConditions,
         relations: {
           user: true,
         },
       });
       return {
+        user,
         data: posts,
         success: true,
         status: HttpStatus.OK,

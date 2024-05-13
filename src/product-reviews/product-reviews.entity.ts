@@ -23,7 +23,9 @@ class ProductReviews {
   @JoinColumn()
   public user: User;
 
-  @ManyToOne(() => Product, (product) => product.comments)
+  @ManyToOne(() => Product, (product) => product.comments, {
+    nullable: true,
+  })
   @JoinColumn()
   public product: Product;
 
@@ -37,6 +39,9 @@ class ProductReviews {
 
   @OneToMany(() => ProductReviews, (comment) => comment.parent_comment)
   replies: ProductReviews[];
+
+  can_delete?: boolean;
+  can_edit?: boolean;
 }
 
 export default ProductReviews;

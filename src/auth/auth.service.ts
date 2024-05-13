@@ -32,13 +32,14 @@ export class AuthService {
         throw new UnauthorizedException();
       }
       delete user.password;
-      const payload = { email: user.email, user_id: user.id };
+      const payload = { email: user.email, user_id: user.id, is_user: true };
+      const access_token = await this.jwtService.signAsync(payload, {
+        secret: 'secret',
+      });
       return {
         data: user,
         success: true,
-        access_token: await this.jwtService.signAsync(payload, {
-          secret: 'secret',
-        }),
+        access_token,
       };
     }
 

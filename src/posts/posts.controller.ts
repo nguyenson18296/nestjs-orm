@@ -46,6 +46,11 @@ export default class PostsController {
     return this.postsService.getAllPostsByUser(Number(req.user.user_id));
   }
 
+  @Get('username/:user_name')
+  getUserPosts(@Param('user_name') user_name: string) {
+    return this.postsService.getAllPostsByUser(undefined, user_name);
+  }
+
   @Get('/random')
   getRandomPosts(offset: number) {
     return this.postsService.getRandomPosts(offset);

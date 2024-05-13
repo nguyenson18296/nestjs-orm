@@ -20,7 +20,6 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UpdateProductDto } from './dto/updateProduct.dto';
 import { isEmpty } from '../utils/utils';
 import { NotificationService } from 'src/notifications/notifications.service';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('products')
 export default class ProductsController {
@@ -31,7 +30,6 @@ export default class ProductsController {
   ) {}
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
   getAllProducts(
     @Query()
     query?: {
