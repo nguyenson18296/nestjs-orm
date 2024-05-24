@@ -41,7 +41,7 @@ export class CartItemService {
         status: HttpStatus.OK,
       };
     } catch (e) {
-      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Error: ' + e.message, HttpStatus.BAD_REQUEST);
     }
   }
 }

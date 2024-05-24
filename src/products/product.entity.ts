@@ -31,6 +31,9 @@ class Product {
   @Column({ nullable: true, array: true })
   public images: string;
 
+  @Column({ nullable: true })
+  short_description: string;
+
   @Column()
   public description: string;
 

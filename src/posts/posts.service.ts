@@ -136,7 +136,10 @@ export default class PostsService {
         success: true,
       };
     } catch (e) {
-      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Error Service ' + e.message,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 

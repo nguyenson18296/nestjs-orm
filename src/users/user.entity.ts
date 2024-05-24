@@ -1,4 +1,10 @@
-import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import ProductReviews from '../product-reviews/product-reviews.entity';
 import { Role } from './roles/role.enum';
 import { Notification } from 'src/notifications/notification.entity';

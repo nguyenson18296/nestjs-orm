@@ -24,12 +24,18 @@ export class CartController {
   ) {}
 
   @Post('/add')
+  @UseGuards(AuthGuard('jwt'))
   addToCart(
     @Body()
-    { user_id, product_id, quantity }: ICreateCartDto,
+    { product_id, quantity }: ICreateCartDto,
+    @Request() req: any,
   ) {
     try {
-      return this.cartsService.addToCart(user_id, product_id, quantity);
+      return this.cartsService.addToCart(
+        Number(req.user.user_id),
+        product_id,
+        quantity,
+      );
     } catch (e) {
       throw new HttpException('Error', HttpStatus.BAD_GATEWAY);
     }

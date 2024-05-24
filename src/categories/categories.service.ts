@@ -53,7 +53,6 @@ export default class CategoriesService {
   }
 
   async updateCategoryOrder(categoryId: number, orderNumber: number) {
-    console.log('orderNumber', orderNumber);
     // Begin transaction
     await this.categoryRepository.manager.transaction(async (entityManager) => {
       const item = await entityManager.findOne(Category, {
@@ -61,7 +60,6 @@ export default class CategoriesService {
           id: categoryId,
         },
       });
-      console.log('item', item);
       if (!item) {
         throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
       }
