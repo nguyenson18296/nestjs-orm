@@ -10,7 +10,6 @@ import {
   Put,
   Param,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -82,7 +81,7 @@ export default class ProductsController {
         category: 'product',
       });
     } catch (e) {
-      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Error' + e.message, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -93,6 +92,10 @@ export default class ProductsController {
     @Body() product: UpdateProductDto & { user_id: number },
     // @UploadedFile() thumbnail?: Express.Multer.File,
   ) {
+    // const file = await this.cloudinaryService.uploadFile(thumbnail);
+    // if (file) {
+    //   product.thumbnail = file.url;
+    // }
     const userId = product.user_id;
     delete product.user_id;
     try {

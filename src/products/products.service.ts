@@ -133,7 +133,6 @@ export default class ProductsService {
     try {
       // Perform the update operation
       const updateResult = await this.productsRepository.update(id, product);
-
       // Check if the entity was found and updated
       if (updateResult.affected === 0) {
         throw new HttpException('Product not found', HttpStatus.NOT_FOUND);

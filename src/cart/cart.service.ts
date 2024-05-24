@@ -87,7 +87,7 @@ export class CartService {
       return {
         success: true,
         status: HttpStatus.OK,
-        data: cart,
+        data: cart ?? ([] as any),
         // eslint-disable-next-line prettier/prettier
         }
     } catch (e) {
