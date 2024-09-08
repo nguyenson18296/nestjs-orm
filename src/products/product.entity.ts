@@ -28,8 +28,8 @@ class Product {
   @Column({ nullable: true })
   public thumbnail: string;
 
-  @Column({ nullable: true, array: true })
-  public images: string;
+  @Column('simple-array', { nullable: true })
+  public images: string[];
 
   @Column({ nullable: true })
   short_description: string;

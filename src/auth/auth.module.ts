@@ -5,13 +5,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
+import OrderServices from 'src/orders/orders.service';
 import User from 'src/users/user.entity';
+import Order from 'src/orders/order.entity';
+import Product from 'src/products/product.entity';
+import OrderItem from 'src/orders/orderItem.entity';
+import { Cart } from 'src/cart/cart.entity';
+import { CartItem } from 'src/cart/cart-item.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Order, Product, OrderItem, Cart, CartItem]),
     JwtModule.register({
       global: true,
       secret: 'secret',
@@ -20,6 +26,12 @@ import { JwtStrategy } from './jwt.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, JwtService, JwtStrategy],
+  providers: [
+    AuthService,
+    UsersService,
+    OrderServices,
+    JwtService,
+    JwtStrategy,
+  ],
 })
 export class AuthModule {}

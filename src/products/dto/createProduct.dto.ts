@@ -5,5 +5,5 @@ export class CreateProductDto {
   description: string;
   price: string;
   discount_price: string;
-  images: string;
+  images: string[];
 }

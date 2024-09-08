@@ -146,12 +146,6 @@ export default class ProductsService {
           HttpStatus.NOT_FOUND,
         );
       }
-      // console.log("updatedProduct", updatedProduct);
-      // this.notificationService.sendNotification({
-      //   message: 'Có tài khoản được cập nhật',
-      //   type: 'update',
-      // });
-      // Return the updated entity
       return updatedProduct;
     } catch (e) {
       throw new HttpException(

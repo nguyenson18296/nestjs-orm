@@ -7,6 +7,7 @@ import {
   Post,
   Request,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -24,8 +25,14 @@ export class OrderController {
   }
 
   @Get()
-  getOrders(@Request() req: any) {
-    return this.ordersService.getOrders();
+  getOrders(@Request() req: any, @Query() query: any) {
+    return this.ordersService.getOrders(query);
+  }
+
+  @Get('user/:id')
+  getOrdersByUser(@Param('id') id: string) {
+    console.log('id', id);
+    return this.ordersService.getOrdersByUser(+id);
   }
 
   @Delete(':id')

@@ -2,7 +2,7 @@ import {
   Post,
   Controller,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { FileInterceptor, MulterModule } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
@@ -17,7 +17,20 @@ export class UploadController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  uploadImage(@UploadedFile() file: Express.Multer.File) {
-    return this.cloudinaryService.uploadFile(file);
+  async uploadImage(@UploadedFiles() files: Express.Multer.File[]) {
+    if (!files || files.length === 0) {
+      return 'No files uploaded';
+    }
+
+    try {
+      // Handle each file and collect the URLs
+      const uploadPromises = files.map(file => this.cloudinaryService.uploadFile(file));
+      const urls = await Promise.all(uploadPromises);
+
+      return { urls }; // Return the array of image URLs
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      return 'Failed to upload files';
+    }
   }
 }

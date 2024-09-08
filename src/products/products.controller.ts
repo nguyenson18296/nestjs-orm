@@ -5,13 +5,14 @@ import {
   Body,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
   HttpException,
   HttpStatus,
   Put,
   Param,
   Query,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 
 import ProductsService from './products.service';
 import { CreateProductDto } from './dto/createProduct.dto';
@@ -63,16 +64,29 @@ export default class ProductsController {
     return product;
   }
 
+
   @Post()
-  @UseInterceptors(FileInterceptor('thumbnail'))
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'thumbnail', maxCount: 1 },
+    { name: 'images', maxCount: 5 }
+  ]))
   async createProduct(
     @Body() product: CreateProductDto,
-    @UploadedFile() thumbnail: Express.Multer.File,
+    @UploadedFiles() thumbnail: Express.Multer.File[],
   ) {
     try {
-      const file = await this.cloudinaryService.uploadFile(thumbnail);
+      const file = await this.cloudinaryService.uploadFile((thumbnail as any).thumbnail[0]);
       if (file) {
         product.thumbnail = file.url;
+      }
+      const imagesUrls = await Promise.all(
+        (thumbnail as any).images.map(async (image: any) => {
+          const img = await this.cloudinaryService.uploadFile(image);
+          return img.url;
+        }),
+      ) as string[];
+      if (imagesUrls) {
+        product.images = imagesUrls;
       }
       await this.productsService.createProduct(product);
       this.notificationsService.sendNotification({
@@ -86,19 +100,35 @@ export default class ProductsController {
   }
 
   @Put(':id')
-  // @UseInterceptors(FileInterceptor('thumbnail')) // 'thumbnail' is the name of the file field in your FormData
+  // @UseInterceptors(FileFieldsInterceptor([
+  //   { name: 'thumbnail', maxCount: 1 },
+  //   { name: 'images', maxCount: 5 }
+  // ]))
   async editProduct(
     @Param('id') id: number, // Simplified param destructuring
     @Body() product: UpdateProductDto & { user_id: number },
-    // @UploadedFile() thumbnail?: Express.Multer.File,
+    @UploadedFiles() thumbnail: Express.Multer.File[],
   ) {
-    // const file = await this.cloudinaryService.uploadFile(thumbnail);
-    // if (file) {
-    //   product.thumbnail = file.url;
-    // }
     const userId = product.user_id;
     delete product.user_id;
     try {
+      if ((thumbnail as any)?.thumbnail?.length > 0) {
+        const file = await this.cloudinaryService.uploadFile((thumbnail as any).thumbnail[0]);
+        if (file) {
+          product.thumbnail = file.url;
+        }
+      }
+      // if ((thumbnail as any).images.length > 0) {
+      //   const imagesUrls = await Promise.all(
+      //     (thumbnail as any).images.map(async (image: any) => {
+      //       const img = await this.cloudinaryService.uploadFile(image);
+      //       return img.url;
+      //     }),
+      //   ) as string[];
+      //   if (imagesUrls) {
+      //     product.images = imagesUrls;
+      //   }
+      // }
       const updatedProduct = await this.productsService.updateProduct(
         id,
         product,
@@ -112,7 +142,8 @@ export default class ProductsController {
         userId,
       );
     } catch (e) {
-      throw new HttpException('Error' + e, HttpStatus.BAD_REQUEST);
+      console.log('e', e)
+      throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
     }
   }
 }

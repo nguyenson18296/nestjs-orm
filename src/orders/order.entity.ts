@@ -30,8 +30,8 @@ class Order {
   @Column({ unique: true })
   order_number: string;
 
-  @Column()
-  issued_date: string;
+  @Column('date', { nullable: true })
+  issued_date: Date;
 
   @ManyToMany(() => OrderItem, (order_items) => order_items.order, {
     cascade: ['insert', 'update'],
