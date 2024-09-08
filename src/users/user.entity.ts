@@ -9,6 +9,7 @@ import ProductReviews from '../product-reviews/product-reviews.entity';
 import { Role } from './roles/role.enum';
 import { Notification } from 'src/notifications/notification.entity';
 import Post from 'src/posts/post.entity';
+import Order from 'src/orders/order.entity';
 
 @Entity()
 class User {
@@ -36,6 +37,9 @@ class User {
     default: Role.User,
   })
   role: Role;
+
+  @OneToMany(() => Order, (orders) => orders.buyer_info)
+  orders: Order[];
 
   @OneToMany(() => ProductReviews, (comment) => comment.user)
   comments: Comment[];

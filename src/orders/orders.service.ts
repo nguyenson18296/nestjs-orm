@@ -1,4 +1,10 @@
-import { IsNull, Not, Repository } from 'typeorm';
+import {
+  IsNull,
+  Not,
+  Repository,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -24,7 +30,7 @@ export default class OrdersService {
     @InjectRepository(Cart)
     private cartRepository: Repository<Cart>,
     @InjectRepository(CartItem)
-    private cartItemsRepository: Repository<CartItem>
+    private cartItemsRepository: Repository<CartItem>,
   ) {}
 
   private async generateOrderNumber(): Promise<string> {
@@ -73,7 +79,7 @@ export default class OrdersService {
           0,
         );
         order.order_number = orderDto.order_number;
-        order.issued_date = orderDto.issued_date;
+        order.issued_date = new Date(orderDto.issued_date);
         order.buyer_info = user;
         if (!orderDto.order_number) {
           order.order_number = await this.generateOrderNumber();
@@ -105,15 +111,71 @@ export default class OrdersService {
     }
   }
 
-  async getOrders() {
+  async getOrders(queries?: {
+    limit: number;
+    page: number;
+    from: string;
+    to: string;
+  }) {
     try {
-      const orders = await this.ordersRepository.findAndCount({
-        relations: ['order_items', 'order_items.product', 'buyer_info'],
+      let whereConditions = [];
+
+        // Default pagination values
+        const limit = queries.limit ? parseInt(queries.limit.toString(), 10) : 10;
+        const page = queries.page ? parseInt(queries.page.toString(), 10) : 1;
+
+        // Validate if numbers are valid after parsing
+        if (isNaN(limit) || isNaN(page) || limit <= 0 || page <= 0) {
+            throw new HttpException('Pagination parameters must be valid numbers.', HttpStatus.BAD_REQUEST);
+        }
+
+        // Date filters
+        if (queries.from) {
+            const parsedStartDate = new Date(queries.from);
+            if (!isNaN(parsedStartDate.getTime())) {
+              console.log('parsedStartDate', parsedStartDate)
+                whereConditions.push({ created_at: MoreThanOrEqual(parsedStartDate) });
+            }
+        }
+
+        if (queries.to) {
+            const parsedEndDate = new Date(queries.to);
+            parsedEndDate.setHours(23, 59, 59, 999); // Set to the end of the day
+            if (!isNaN(parsedEndDate.getTime())) {
+                whereConditions.push({ created_at: LessThanOrEqual(parsedEndDate) });
+            }
+        }
+
+        const skip = (page - 1) * limit; // Calculate offset
+
+        const orders = await this.ordersRepository.findAndCount({
+            relations: ['order_items', 'order_items.product', 'buyer_info'],
+            where: whereConditions,
+            take: limit,
+            skip: skip,
+        });
+        const [data, count] = orders;
+        return {
+            data,
+            count,
+            success: true,
+            status: HttpStatus.OK,
+        };
+    } catch (e) {
+      throw new HttpException('Error: ' + e.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getOrdersByUser(user_id: number) {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: {
+          id: user_id,
+        },
+        relations: ['orders', 'orders.order_items', 'orders.order_items.product'],
       });
-      const [data, count] = orders;
       return {
-        data,
-        total: count,
+        data: user.orders,
         success: true,
         status: HttpStatus.OK,
       };

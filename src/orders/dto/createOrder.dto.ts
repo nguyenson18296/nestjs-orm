@@ -7,7 +7,7 @@ interface IProductInfo {
 
 export class CreateOrderDto {
   order_number: string;
-  issued_date: string;
+  issued_date: Date;
   line_items: IProductInfo[];
   payment_status: TPaymentStatus;
   buyer_info: number;
