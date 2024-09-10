@@ -8,8 +8,8 @@ import {
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import Order from './order.entity';
-import { CreateOrderDto } from './dto/createOrder.dto';
+import Order, { TPaymentStatus } from './order.entity';
+import { CreateOrderDto, UpdateOrderDto } from './dto/createOrder.dto';
 import Product from 'src/products/product.entity';
 import OrderItem from './orderItem.entity';
 import User from 'src/users/user.entity';
@@ -116,6 +116,7 @@ export default class OrdersService {
     page: number;
     from: string;
     to: string;
+    payment_status: TPaymentStatus;
   }) {
     try {
       let whereConditions = [];
@@ -146,6 +147,10 @@ export default class OrdersService {
             }
         }
 
+        if (queries.payment_status) {
+            whereConditions.push({ payment_status: queries.payment_status });
+        }
+
         const skip = (page - 1) * limit; // Calculate offset
 
         const orders = await this.ordersRepository.findAndCount({
@@ -157,10 +162,28 @@ export default class OrdersService {
         const [data, count] = orders;
         return {
             data,
-            count,
+            total: count,
             success: true,
+            page,
+            limit,
             status: HttpStatus.OK,
         };
+    } catch (e) {
+      throw new HttpException('Error: ' + e.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getAllOrdersForReport() {
+    try {
+      const [orders, count] = await this.ordersRepository.findAndCount({
+        relations: ['order_items', 'order_items.product', 'buyer_info'],
+      });
+      return {
+        data: orders,
+        total: count,
+        success: true,
+        status: HttpStatus.OK,
+      };
     } catch (e) {
       throw new HttpException('Error: ' + e.message, HttpStatus.BAD_REQUEST);
     }
@@ -192,6 +215,53 @@ export default class OrdersService {
         .from(Order)
         .where('id = :id', { id: order_id })
         .execute();
+    } catch (e) {
+      throw new HttpException('Error: ' + e.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async updateOrder(order_id: string, updateOrderDto: UpdateOrderDto) {
+    try {
+      const order = await this.ordersRepository.findOne({
+        where: {
+          id: order_id,
+        },
+        relations: ['order_items', 'order_items.product'],
+      });
+      if (!order) {
+        throw new Error(`Order with ID ${order_id} not found`);
+      }
+
+      if (updateOrderDto.payment_status) {
+        order.payment_status = updateOrderDto.payment_status;
+      }
+
+      if (updateOrderDto.issued_date) {
+        order.issued_date = updateOrderDto.issued_date;
+      }
+
+      if (updateOrderDto.buyer_info) {
+        const user = await this.usersRepository.findOne({
+          where: {
+            id: updateOrderDto.buyer_info,
+          },
+        });
+        if (!user) {
+          throw new Error(`User with ID ${updateOrderDto.buyer_info} not found`);
+        }
+        order.buyer_info = user;
+      }
+
+      if (updateOrderDto.contact_detail) {
+        order.contact_detail = updateOrderDto.contact_detail;
+      }
+
+      await this.ordersRepository.save(order);
+      return {
+        data: order,
+        success: true,
+        status: HttpStatus.OK,
+      };
     } catch (e) {
       throw new HttpException('Error: ' + e.message, HttpStatus.BAD_REQUEST);
     }
