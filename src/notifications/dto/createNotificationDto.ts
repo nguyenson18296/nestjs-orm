@@ -5,4 +5,6 @@ export interface CreateNotificationDto {
   message: string;
   user?: User;
   is_read: boolean;
+  url?: string;
+  data?: any;
 }
