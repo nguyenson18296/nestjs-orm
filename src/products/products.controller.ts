@@ -4,7 +4,6 @@ import {
   Get,
   Body,
   UseInterceptors,
-  UploadedFile,
   UploadedFiles,
   HttpException,
   HttpStatus,
@@ -12,7 +11,7 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 import ProductsService from './products.service';
 import { CreateProductDto } from './dto/createProduct.dto';
@@ -54,7 +53,18 @@ export default class ProductsController {
 
   @Get('random')
   getRandomProducts() {
+    console.log('random')
     return this.productsService.getRandomProducts(5);
+  }
+
+  @Get('best-selling')
+  getRandomProduct(
+    @Query() { start_date, end_date }: { start_date?: string; end_date?: string },
+  ) {
+    return this.productsService.getBestSellingProducts({
+      start_date,
+      end_date,
+    });
   }
 
   @Get(':slug')
@@ -141,6 +151,11 @@ export default class ProductsController {
         },
         userId,
       );
+      return {
+        data: updatedProduct,
+        success: true,
+        status: HttpStatus.OK,
+      }
     } catch (e) {
       console.log('e', e)
       throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);

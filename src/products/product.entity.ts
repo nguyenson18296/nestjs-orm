@@ -48,12 +48,14 @@ class Product {
   @ManyToOne(() => Category, (category) => category.products)
   public category: Category;
 
-  @ManyToOne(() => Category)
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column('integer', { default: 0 })
+  public in_stock: number;
 
   @OneToMany(() => ProductReviews, (comments) => comments.product)
   public comments: ProductReviews[];

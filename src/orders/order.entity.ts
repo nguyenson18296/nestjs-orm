@@ -4,6 +4,7 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -33,10 +34,9 @@ class Order {
   @Column('date', { nullable: true })
   issued_date: Date;
 
-  @ManyToMany(() => OrderItem, (order_items) => order_items.order, {
-    cascade: ['insert', 'update'],
+  @OneToMany(() => OrderItem, orderItem => orderItem.order, {
+    cascade: true,
   })
-  @JoinTable()
   order_items: OrderItem[];
 
   @Column()

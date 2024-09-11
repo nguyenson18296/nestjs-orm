@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import Product from './product.entity';
+import Order from 'src/orders/order.entity';
+import OrderItem from 'src/orders/orderItem.entity';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
 
@@ -11,6 +13,10 @@ export default class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>, // private notificationService: NotificationService,
+    @InjectRepository(Order)
+    private ordersRepository: Repository<Order>,
+    @InjectRepository(OrderItem)
+    private orderItemRepository: Repository<OrderItem>,
   ) {}
 
   async getAllProducts(
@@ -121,6 +127,55 @@ export default class ProductsService {
       success: false,
       status: HttpStatus.NOT_FOUND,
     };
+  }
+
+  async getBestSellingProducts({ start_date, end_date } : { start_date?: string; end_date?: string }): Promise<any> {
+    try {
+      const entityManager = this.orderItemRepository.manager;
+      let sql = `
+          SELECT
+              p.id AS "product_id",
+              p.title AS "product_title",
+              p.thumbnail AS "product_thumbnail",
+              SUM(oi.quantity) AS "total_sold"
+          FROM
+              order_item oi
+          INNER JOIN
+              product p ON oi.product_id = p.id
+          INNER JOIN
+              "order" o ON oi.order_id = o.id
+          WHERE
+              o.payment_status = 'COMPLETED'
+      `;
+
+      const conditions = [];
+      if (start_date) {
+        conditions.push(`o.created_at >= '${start_date}'`);
+      }
+      if (end_date) {
+        conditions.push(`o.created_at <= '${end_date}'`);
+      }
+      if (conditions.length > 0) {
+        sql += ' AND ' + conditions.join(' AND ');
+      }
+
+      sql += `
+          GROUP BY
+              p.id, p.title, p.thumbnail
+          ORDER BY
+              total_sold DESC
+          LIMIT 10;
+      `
+
+      const result = await entityManager.query(sql);
+      return {
+        data: result,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async createProduct(product: CreateProductDto) {

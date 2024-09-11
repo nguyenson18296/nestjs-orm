@@ -63,7 +63,7 @@ export default class OrdersService {
         throw new Error(`User with ID ${user_id} not found`);
       }
 
-      for (const { id, quantity } of orderDto.line_items) {
+      for (const { id, quantity } of orderDto.order_items) {
         const product = await this.productsRepository.findOneBy({ id });
         if (!product) {
           throw new Error(`Product with ID ${id} not found`);
@@ -79,7 +79,7 @@ export default class OrdersService {
           0,
         );
         order.order_number = orderDto.order_number;
-        order.issued_date = new Date(orderDto.issued_date);
+        order.issued_date = orderDto.issued_date;
         order.buyer_info = user;
         if (!orderDto.order_number) {
           order.order_number = await this.generateOrderNumber();
@@ -99,8 +99,10 @@ export default class OrdersService {
         },
         relations: ['items'],
       });
-      await this.cartItemsRepository.remove(userCart.items);
-      await this.cartRepository.remove(userCart);
+      if (userCart) {
+        await this.cartItemsRepository.remove(userCart.items);
+        await this.cartRepository.remove(userCart);
+      }
       return {
         data,
         success: true,

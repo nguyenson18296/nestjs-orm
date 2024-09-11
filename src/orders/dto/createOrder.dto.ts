@@ -8,7 +8,7 @@ interface IProductInfo {
 export class CreateOrderDto {
   order_number: string;
   issued_date: Date;
-  line_items: IProductInfo[];
+  order_items: IProductInfo[];
   payment_status: TPaymentStatus;
   buyer_info: number;
   contact_detail: {
@@ -21,7 +21,7 @@ export class CreateOrderDto {
 
 export class UpdateOrderDto {
   issued_date?: Date;
-  line_items?: IProductInfo[];
+  order_items?: IProductInfo[];
   payment_status?: TPaymentStatus;
   buyer_info?: number;
   contact_detail?: {
