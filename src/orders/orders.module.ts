@@ -13,6 +13,8 @@ import OrderItem from './orderItem.entity';
 import User from 'src/users/user.entity';
 import { Cart } from 'src/cart/cart.entity';
 import { CartItem } from 'src/cart/cart-item.entity';
+import VoucherUser from 'src/vouchers/voucher-user.entity';
+import Voucher from 'src/vouchers/voucher.entity';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { CartItem } from 'src/cart/cart-item.entity';
       Cart,
       CartItem,
       Notification,
+      VoucherUser,
+      Voucher
     ]),
   ],
   controllers: [OrderController],

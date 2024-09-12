@@ -10,6 +10,7 @@ import { Role } from './roles/role.enum';
 import { Notification } from 'src/notifications/notification.entity';
 import Post from 'src/posts/post.entity';
 import Order from 'src/orders/order.entity';
+import VoucherUser from 'src/vouchers/voucher-user.entity';
 
 @Entity()
 class User {
@@ -43,6 +44,9 @@ class User {
 
   @OneToMany(() => ProductReviews, (comment) => comment.user)
   comments: Comment[];
+
+  @OneToMany(() => VoucherUser, (voucher) => voucher.user)
+  vouchers: VoucherUser[];
 
   @OneToMany(() => Post, (posts) => posts, { cascade: true })
   @JoinColumn()

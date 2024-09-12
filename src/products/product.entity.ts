@@ -13,6 +13,7 @@ import {
 import Category from 'src/categories/category.entity';
 import { generateSlug } from 'src/utils/utils';
 import ProductReviews from 'src/product-reviews/product-reviews.entity';
+import VoucherProduct from 'src/vouchers/voucher-product.entity';
 
 @Entity()
 class Product {
@@ -56,6 +57,9 @@ class Product {
 
   @Column('integer', { default: 0 })
   public in_stock: number;
+
+  @OneToMany(() => VoucherProduct, (voucher) => voucher.product)
+  public vouchers: VoucherProduct[];
 
   @OneToMany(() => ProductReviews, (comments) => comments.product)
   public comments: ProductReviews[];

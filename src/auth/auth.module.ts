@@ -14,10 +14,21 @@ import { Cart } from 'src/cart/cart.entity';
 import { CartItem } from 'src/cart/cart-item.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import VoucherUser from 'src/vouchers/voucher-user.entity';
+import Voucher from 'src/vouchers/voucher.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Order, Product, OrderItem, Cart, CartItem]),
+    TypeOrmModule.forFeature([
+      User,
+      Order,
+      Product,
+      OrderItem,
+      Cart,
+      CartItem,
+      Voucher,
+      VoucherUser,
+    ]),
     JwtModule.register({
       global: true,
       secret: 'secret',

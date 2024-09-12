@@ -5,7 +5,7 @@ import {
   MoreThanOrEqual,
   LessThanOrEqual,
 } from 'typeorm';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import Order, { TPaymentStatus } from './order.entity';
@@ -15,6 +15,8 @@ import OrderItem from './orderItem.entity';
 import User from 'src/users/user.entity';
 import { Cart } from 'src/cart/cart.entity';
 import { CartItem } from 'src/cart/cart-item.entity';
+import VoucherUser from 'src/vouchers/voucher-user.entity';
+import Voucher from 'src/vouchers/voucher.entity';
 
 @Injectable()
 export default class OrdersService {
@@ -31,6 +33,10 @@ export default class OrdersService {
     private cartRepository: Repository<Cart>,
     @InjectRepository(CartItem)
     private cartItemsRepository: Repository<CartItem>,
+    @InjectRepository(VoucherUser)
+    private voucherUserRepository: Repository<VoucherUser>,
+    @InjectRepository(Voucher)
+    private voucherRepository: Repository<Voucher>,
   ) {}
 
   private async generateOrderNumber(): Promise<string> {
@@ -86,6 +92,30 @@ export default class OrdersService {
         }
       }
 
+      if (orderDto.voucher_id) {
+        const voucherUser = await this.voucherUserRepository.findOne({
+          where: {
+            user: {
+              id: user_id
+            },
+            voucher: {
+              id: orderDto.voucher_id
+            }}
+        })
+        if (voucherUser) {
+          const voucher = await this.voucherRepository.findOne({
+            where: {
+              id: orderDto.voucher_id
+            }
+          })
+          voucherUser.usage_count += 1;
+          voucher.usage_limit -= 1;
+          await this.voucherUserRepository.save(voucherUser);
+          await this.voucherRepository.save(voucher);
+          order.total_price = order.total_price - voucher.discount_value;
+        }
+      }
+
       await this.ordersRepository.save(order); // Save the order along with its items due to cascading
       const data = this.ordersRepository.findOne({
         where: { id: order.id },
@@ -106,7 +136,7 @@ export default class OrdersService {
       return {
         data,
         success: true,
-        status: HttpStatus.OK,
+        status: HttpStatus.CREATED,
       };
     } catch (e) {
       throw new HttpException('Error: ' + e.message, HttpStatus.BAD_REQUEST);
