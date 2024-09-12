@@ -17,6 +17,7 @@ export class CreateOrderDto {
     last_name: string;
     phone: string;
   };
+  voucher_id?: string;
 }
 
 export class UpdateOrderDto {

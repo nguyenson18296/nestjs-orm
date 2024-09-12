@@ -132,7 +132,7 @@ export default class PostsService {
       await this.postsRepository.save(newPost);
       return {
         data: newPost,
-        status: HttpStatus.OK,
+        status: HttpStatus.CREATED,
         success: true,
       };
     } catch (e) {
