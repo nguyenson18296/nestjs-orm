@@ -75,11 +75,7 @@ export default class ProductsService {
         status: HttpStatus.OK,
       };
     } catch (e) {
-      return {
-        data: null as any,
-        success: false,
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-      };
+      throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -129,7 +125,13 @@ export default class ProductsService {
     };
   }
 
-  async getBestSellingProducts({ start_date, end_date } : { start_date?: string; end_date?: string }): Promise<any> {
+  async getBestSellingProducts({
+    start_date,
+    end_date,
+  }: {
+    start_date?: string;
+    end_date?: string;
+  }): Promise<any> {
     try {
       const entityManager = this.orderItemRepository.manager;
       let sql = `
@@ -137,6 +139,11 @@ export default class ProductsService {
               p.id AS "product_id",
               p.title AS "product_title",
               p.thumbnail AS "product_thumbnail",
+              p.slug AS "product_slug",
+              p.price AS "product_price",
+              p.discount_price AS "product_discount_price",
+              p.in_stock AS "product_in_stock",
+              p.images as "product_images",
               SUM(oi.quantity) AS "total_sold"
           FROM
               order_item oi
@@ -165,11 +172,48 @@ export default class ProductsService {
           ORDER BY
               total_sold DESC
           LIMIT 10;
-      `
+      `;
 
       const result = await entityManager.query(sql);
+      const resultTransformed = result.map((item: any) => ({
+        ...item,
+        product_images: item.product_images ? item.product_images.split(',') : [],
+      }));
       return {
-        data: result,
+        data: resultTransformed,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getLatestProducts() {
+    try {
+      const result = await this.productsRepository
+        .createQueryBuilder('product')
+        .select([
+          'product.id',
+          'product.title',
+          'product.thumbnail',
+          'product.slug',
+          'product.price',
+          'product.discount_price',
+          'product.in_stock',
+          'product.images',
+        ])
+        .orderBy('product.created_at', 'DESC')
+        .limit(10)
+        .getRawMany();
+      
+      const resultTransformed = result.map((item: any) => ({
+        ...item,
+        product_images: item.product_images ? item.product_images.split(',') : [],
+      }))
+
+      return {
+        data: resultTransformed,
         success: true,
         status: HttpStatus.OK,
       };

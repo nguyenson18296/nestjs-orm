@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import VouchersService from "./vouchers.service";
 import type { CreateVoucherDto, CreateVoucherUserDto, UpdateVoucherDto } from "./dto";
 import { AuthGuard } from "@nestjs/passport";
@@ -10,8 +10,14 @@ export default class VouchersController {
   ) {}
 
   @Get()
-  async getVouchers() {
-    return this.vouchersService.getVouchers();
+  async getVouchers(@Query() queries?: {
+    page?: number;
+    limit?: number
+  }) {
+    return this.vouchersService.getVouchers({
+      page: queries.page || 1,
+      limit: queries.limit || 10
+    });
   }
 
   @Post()
@@ -36,5 +42,13 @@ export default class VouchersController {
     @Body() voucher: UpdateVoucherDto
   ) {
     return this.vouchersService.updateVoucher(id, voucher);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
+  async deleteVoucher(
+    @Param() { id }: { id: string }
+  ) {
+    return this.vouchersService.deleteVoucher(id);
   }
 }

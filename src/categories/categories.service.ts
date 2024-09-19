@@ -13,12 +13,30 @@ export default class CategoriesService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  getAllCategories() {
-    return this.categoryRepository.find({
-      order: {
-        orders: 'ASC',
-      },
-    });
+  async getAllCategories() {
+    try {
+      const categories = await this.categoryRepository
+        .createQueryBuilder('category')
+        .leftJoin('category.products', 'product') // Assuming 'products' is the correct relation name
+        .select('category.id', 'id')
+        .addSelect('category.title', 'title')
+        .addSelect('category.orders', 'orders')
+        .addSelect('category.slug', 'slug')
+        .addSelect('category.thumbnail', 'thumbnail')
+        .addSelect('COUNT(product.id)', 'product_count') // Aggregate function
+        .groupBy('category.id')
+        .addGroupBy('category.title')
+        .orderBy('category.orders', 'ASC')
+        .getRawMany(); // Use getRawMany to handle the raw output
+
+      return {
+        data: categories,
+        success: true,
+        status: HttpStatus.OK,
+      }
+    } catch (e) {
+      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async getCategoryById(id: number) {

@@ -20,13 +20,13 @@ class ProductReviews {
   public content: string;
 
   @ManyToOne(() => User, (user) => user.comments)
-  @JoinColumn()
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   public user: User;
 
   @ManyToOne(() => Product, (product) => product.comments, {
     nullable: true,
   })
-  @JoinColumn()
+  @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
   public product: Product;
 
   @CreateDateColumn()
@@ -35,6 +35,7 @@ class ProductReviews {
   @ManyToOne(() => ProductReviews, (comment) => comment.replies, {
     nullable: true,
   })
+  @JoinColumn({ name: 'parent_comment_id', referencedColumnName: 'id' })
   parent_comment: ProductReviews;
 
   @OneToMany(() => ProductReviews, (comment) => comment.parent_comment)

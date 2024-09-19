@@ -5,6 +5,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { instanceToPlain, Exclude } from 'class-transformer';
+
 import ProductReviews from '../product-reviews/product-reviews.entity';
 import { Role } from './roles/role.enum';
 import { Notification } from 'src/notifications/notification.entity';
@@ -23,7 +25,8 @@ class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
+  @Exclude({ toPlainOnly: true })
   password: string;
 
   @Column({ default: false })
@@ -54,6 +57,10 @@ class User {
 
   @OneToMany(() => Notification, (notifications) => notifications.user)
   notifications: Notification[];
+
+  toJSON() {
+    return instanceToPlain(this);
+  }
 }
 
 export default User;

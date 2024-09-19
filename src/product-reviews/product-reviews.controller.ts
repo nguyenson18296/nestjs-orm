@@ -22,19 +22,19 @@ import { OptionalJwtAuthGuard } from 'src/auth/optional-jwt-auth.guard';
 export class ProductReviewsController {
   constructor(private readonly productReviewsService: ProductReviewsService) {}
 
-  @Get(':product_id')
-  @UseGuards(OptionalJwtAuthGuard)
+  @Get(':product_slug')
+  // @UseGuards(OptionalJwtAuthGuard)
   async getComments(
-    @Param('product_id') product_id: string,
+    @Param('product_slug') product_slug: string,
     @Request() req: any,
   ) {
     try {
       return this.productReviewsService.getAllProductReviews(
-        Number(product_id),
-        Number(req.user.user_id),
+        product_slug,
+        Number(req ? req?.user?.user_id : undefined),
       );
     } catch (e) {
-      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
     }
   }
 

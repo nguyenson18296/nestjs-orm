@@ -1,5 +1,6 @@
+import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
 import Product from 'src/products/product.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 class Category {
@@ -18,8 +19,9 @@ class Category {
   @Column({ nullable: true })
   public thumbnail: string;
 
-  @OneToMany(() => Product, (product: Product) => product)
-  public products: Product;
+  @OneToMany(() => Product, (product: Product) => product.category, { cascade: true })
+  @JoinColumn()
+  public products: Product[];
 }
 
 export default Category;

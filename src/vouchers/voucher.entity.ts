@@ -26,6 +26,9 @@ class Voucher {
   @Column('int', { default: 0 })
   usage_count: number;
 
+  @Column('text', { nullable: true })
+  description: string;
+
   @Column('boolean', { default: false })
   is_active: boolean;
 
