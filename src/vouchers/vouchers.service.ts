@@ -16,11 +16,26 @@ export default class VouchersService {
     private voucherUserRepository: Repository<VoucherUser>,
   ) {}
 
-  async getVouchers() {
+  async getVouchers(queries?: {
+    page?: number;
+    limit?: number;
+  }) {
+    // Default pagination values
+    const limit = queries.limit ? parseInt(queries.limit.toString(), 10) : 10;
+    const page = queries.page ? parseInt(queries.page.toString(), 10) : 1;
+    const skip = (page - 1) * limit; // Calculate offset
+
     try {
-      const vouchers = await this.vouchersRepository.find();
+      const [vouchers, count] = await this.vouchersRepository.findAndCount({
+        take: limit,
+        skip: skip,
+      });
       return {
         data: vouchers,
+        total: count,
+        page: page,
+        limit: limit,
+        total_page: Math.ceil(count / limit),
         success: true,
         status: HttpStatus.OK,
       };
@@ -88,6 +103,22 @@ export default class VouchersService {
       });
       return {
         data: updatedVoucherData,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async deleteVoucher(id: string) {
+    try {
+      const deletedVoucher = await this.vouchersRepository.delete(id);
+      if (deletedVoucher.affected === 0) {
+        throw new HttpException('Voucher not found', HttpStatus.NOT_FOUND);
+      }
+      return {
+        data: deletedVoucher,
         success: true,
         status: HttpStatus.OK,
       };

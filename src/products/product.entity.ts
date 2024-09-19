@@ -8,6 +8,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 import Category from 'src/categories/category.entity';
@@ -30,7 +31,7 @@ class Product {
   public thumbnail: string;
 
   @Column('simple-array', { nullable: true })
-  public images: string[];
+  public images: string[] | string;
 
   @Column({ nullable: true })
   short_description: string;
@@ -47,6 +48,7 @@ class Product {
   public discount_price: string;
 
   @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({ name: 'category_id' })
   public category: Category;
 
   @CreateDateColumn()

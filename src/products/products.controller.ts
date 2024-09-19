@@ -52,9 +52,10 @@ export default class ProductsController {
   }
 
   @Get('random')
-  getRandomProducts() {
-    console.log('random')
-    return this.productsService.getRandomProducts(5);
+  getRandomProducts(
+    @Query() { limit }: { limit?: number },
+  ) {
+    return this.productsService.getRandomProducts(limit);
   }
 
   @Get('best-selling')
@@ -65,6 +66,11 @@ export default class ProductsController {
       start_date,
       end_date,
     });
+  }
+
+  @Get('newest')
+  getNewestProducts() {
+    return this.productsService.getLatestProducts();
   }
 
   @Get(':slug')
@@ -157,7 +163,6 @@ export default class ProductsController {
         status: HttpStatus.OK,
       }
     } catch (e) {
-      console.log('e', e)
       throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
     }
   }

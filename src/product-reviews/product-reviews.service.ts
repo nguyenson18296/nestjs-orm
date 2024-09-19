@@ -24,37 +24,46 @@ export class ProductReviewsService {
     private productsRepository: Repository<Product>,
   ) {}
 
-  async getAllProductReviews(product_id: number, user_id: number) {
+  async getAllProductReviews(product_slug: string, user_id?: number) {
     try {
-      const response = await this.reviewsRepository.find({
-        where: {
-          product: {
-            id: product_id,
-          },
-        },
-        relations: {
-          user: true,
-          replies: true,
-        },
-      });
+      const response = await this.reviewsRepository
+        .createQueryBuilder('review')
+        .leftJoinAndSelect('review.user', 'user')
+        .leftJoinAndSelect('review.replies', 'replies')
+        .leftJoinAndSelect('replies.user', 'repliesUser')
+        .leftJoin('review.product', 'product') // Properly joining the product table
+        .where('product.slug = :slug', { slug: product_slug }) // Using the alias for product
+        .andWhere('review.parent_comment IS NULL') // Assuming top-level reviews only
+        .select([
+          'review.id',
+          'review.content',
+          'review.created_at',
+          'user.id',
+          'user.username',
+          'user.avatar',
+          'replies.id',
+          'replies.content',
+          'replies.created_at',
+          'repliesUser.id',
+          'repliesUser.username',
+          'repliesUser.avatar',
+        ])
+        .getMany();
+
       return {
         success: true,
         status: HttpStatus.OK,
         data: response.map((data) => ({
           ...data,
-          is_mine: data.user.id === user_id,
-          replies: data.replies.map((rep) => ({
+          is_mine: user_id ? data?.user.id === user_id : false,
+          replies: (data.replies || []).map((rep) => ({
             ...rep,
             is_mine: data.user.id === user_id,
           })),
         })),
       };
     } catch (e) {
-      return {
-        success: false,
-        message: e,
-        status: HttpStatus.BAD_REQUEST,
-      };
+      throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
     }
   }
 
