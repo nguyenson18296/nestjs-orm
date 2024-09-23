@@ -16,7 +16,7 @@ class ProductReviews {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column()
+  @Column({ nullable: false })
   public content: string;
 
   @ManyToOne(() => User, (user) => user.comments)

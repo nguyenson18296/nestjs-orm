@@ -55,7 +55,6 @@ export class OrderController {
 
   @Get('user/:id')
   getOrdersByUser(@Param('id') id: string) {
-    console.log('id', id);
     return this.ordersService.getOrdersByUser(+id);
   }
 

@@ -80,6 +80,10 @@ export default class ProductsController {
     return product;
   }
 
+  @Get('category/:slug')
+  getProductsByCategory(@Param('slug') slug: string) {
+    return this.productsService.getProductsByCategory(slug);
+  }
 
   @Post()
   @UseInterceptors(FileFieldsInterceptor([

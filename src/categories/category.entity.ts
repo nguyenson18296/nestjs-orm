@@ -19,6 +19,9 @@ class Category {
   @Column({ nullable: true })
   public thumbnail: string;
 
+  @Column({ nullable: true })
+  public description: string;
+
   @OneToMany(() => Product, (product: Product) => product.category, { cascade: true })
   @JoinColumn()
   public products: Product[];

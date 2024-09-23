@@ -50,11 +50,16 @@ export default class MeService {
         throw new HttpException('Voucher not found', HttpStatus.NOT_FOUND);
       }
 
+      console.log('voucher', voucher.valid_from, new Date(voucher.valid_from) < new Date())
+      console.log('voucher', voucher.valid_to, new Date(voucher.valid_to) > new Date())
+
       if (new Date(voucher.valid_from) > new Date() || new Date(voucher.valid_to) < new Date()) {
+        console.log('1111111111')
         throw new HttpException('Voucher not valid', HttpStatus.BAD_REQUEST);
       }
 
-      if (voucher.usage_limit < 1) {
+      if (voucher.usage_limit < 0) {
+        console.log('2222222222')
         throw new HttpException('Voucher not valid', HttpStatus.BAD_REQUEST);
       }
 

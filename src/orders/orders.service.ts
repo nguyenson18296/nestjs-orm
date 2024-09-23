@@ -166,7 +166,6 @@ export default class OrdersService {
         if (queries.from) {
             const parsedStartDate = new Date(queries.from);
             if (!isNaN(parsedStartDate.getTime())) {
-              console.log('parsedStartDate', parsedStartDate)
                 whereConditions.push({ created_at: MoreThanOrEqual(parsedStartDate) });
             }
         }

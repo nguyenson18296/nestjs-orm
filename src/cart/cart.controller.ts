@@ -48,6 +48,7 @@ export class CartController {
   }
 
   @Delete('/cart-item/:id')
+  @UseGuards(AuthGuard('jwt'))
   deleteCartItem(@Param('id') id: string) {
     return this.cartItemService.deleteProductInCart(Number(id));
   }

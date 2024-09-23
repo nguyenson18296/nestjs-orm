@@ -111,7 +111,11 @@ export default class PostsService {
       },
     });
     if (post) {
-      return post;
+      return {
+        data: post,
+        success: true,
+        status: HttpStatus.OK,
+      };
     }
     throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
   }
