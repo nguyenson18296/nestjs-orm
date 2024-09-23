@@ -29,9 +29,9 @@ export default class Categories {
     return this.categoriesService.getAllCategories();
   }
 
-  @Get(':id')
-  getCategoryById(@Param('id') id: string) {
-    return this.categoriesService.getCategoryById(Number(id));
+  @Get(':slug')
+  getCategoryById(@Param('slug') slug: string) {
+    return this.categoriesService.getCategoryBySlug(slug);
   }
 
   @Post()

@@ -69,10 +69,13 @@ export class ProductReviewsService {
 
   async createComment({
     user_id,
-    product_id,
+    product_slug,
     content,
     parent_comment_id,
   }: CreateReviewsProductDto) {
+    if (!content) {
+      throw new HttpException('Content is required', HttpStatus.BAD_REQUEST);
+    }
     // Verify user exists
     const userExists = await this.usersRepository.findOne({
       where: {
@@ -86,7 +89,7 @@ export class ProductReviewsService {
     // Verify product exists
     const productExists = await this.productsRepository.findOne({
       where: {
-        id: product_id,
+        slug: product_slug,
       },
     });
     if (!productExists) {
@@ -114,7 +117,9 @@ export class ProductReviewsService {
     return {
       success: true,
       status: HttpStatus.OK,
-      ...newComment,
+      data: {
+        ...newComment,
+      }
     };
   }
 

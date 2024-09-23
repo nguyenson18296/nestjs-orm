@@ -39,6 +39,7 @@ export class AuthService {
       return {
         data: user,
         success: true,
+        status: HttpStatus.OK,
         access_token,
       };
     }

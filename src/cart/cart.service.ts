@@ -68,6 +68,11 @@ export class CartService {
       await this.cartItemRepository.save(cartItem);
     }
     await this.cartsRepository.save(cart);
+    return {
+      success: true,
+      status: HttpStatus.OK,
+      // data: cart,
+    }
   }
 
   async getUserCart(userId: number) {

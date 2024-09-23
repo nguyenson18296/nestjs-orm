@@ -43,7 +43,7 @@ export class ProductReviewsController {
     try {
       return this.productReviewsService.createComment({
         user_id: comment.user_id,
-        product_id: comment.product_id,
+        product_slug: comment.product_slug,
         content: comment.content,
         parent_comment_id: comment.parent_comment_id,
       });

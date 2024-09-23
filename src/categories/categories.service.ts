@@ -23,6 +23,7 @@ export default class CategoriesService {
         .addSelect('category.orders', 'orders')
         .addSelect('category.slug', 'slug')
         .addSelect('category.thumbnail', 'thumbnail')
+        .addSelect('category.description', 'description')
         .addSelect('COUNT(product.id)', 'product_count') // Aggregate function
         .groupBy('category.id')
         .addGroupBy('category.title')
@@ -39,16 +40,24 @@ export default class CategoriesService {
     }
   }
 
-  async getCategoryById(id: number) {
-    const category = await this.categoryRepository.findOne({
-      where: {
-        id,
-      },
-    });
-    if (category) {
-      return category;
+  async getCategoryBySlug(slug: string) {
+    try {
+      const category = await this.categoryRepository.findOne({
+        where: {
+          slug,
+        },
+      });
+      if (category) {
+        return {
+          data: category,
+          success: true,
+          status: HttpStatus.OK
+        };
+      }
+      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    } catch (e) {
+      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
     }
-    throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
   }
 
   async createCategory(category: CreateCategoryDto) {

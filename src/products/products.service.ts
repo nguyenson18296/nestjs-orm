@@ -222,6 +222,23 @@ export default class ProductsService {
     }
   }
 
+  async getProductsByCategory(category_slug: string) {
+    try {
+      const result = await this.productsRepository
+        .createQueryBuilder('product')
+        .innerJoin('product.category', 'category')
+        .where('category.slug = :category_slug', { category_slug })
+        .getMany();
+      return {
+        data: result,
+        success: true,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async createProduct(product: CreateProductDto) {
     const newProduct = await this.productsRepository.create(product);
     await this.productsRepository.save(newProduct);
