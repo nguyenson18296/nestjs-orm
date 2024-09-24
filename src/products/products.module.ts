@@ -9,7 +9,7 @@ import { NotificationService } from 'src/notifications/notifications.service';
 import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 import { Notification } from 'src/notifications/notification.entity';
 import { UsersService } from 'src/users/users.service';
-import User from 'src/users/user.entity';
+import User from '../users/user.entity';
 import OrderItem from 'src/orders/orderItem.entity';
 import Order from 'src/orders/order.entity';
 

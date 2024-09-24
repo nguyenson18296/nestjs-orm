@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-import Product from 'src/products/product.entity';
+import Product from '../products/product.entity';
 
 @Entity()
 class Category {

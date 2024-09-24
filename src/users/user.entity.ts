@@ -9,10 +9,10 @@ import { instanceToPlain, Exclude } from 'class-transformer';
 
 import ProductReviews from '../product-reviews/product-reviews.entity';
 import { Role } from './roles/role.enum';
-import { Notification } from 'src/notifications/notification.entity';
-import Post from 'src/posts/post.entity';
-import Order from 'src/orders/order.entity';
-import VoucherUser from 'src/vouchers/voucher-user.entity';
+import { Notification } from '../notifications/notification.entity';
+import Post from '../posts/post.entity';
+import Order from '../orders/order.entity';
+import VoucherUser from '../vouchers/voucher-user.entity';
 
 @Entity()
 class User {

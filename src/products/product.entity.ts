@@ -11,10 +11,10 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import Category from 'src/categories/category.entity';
-import { generateSlug } from 'src/utils/utils';
-import ProductReviews from 'src/product-reviews/product-reviews.entity';
-import VoucherProduct from 'src/vouchers/voucher-product.entity';
+import Category from '../categories/category.entity';
+import { generateSlug } from '../utils/utils';
+import ProductReviews from '../product-reviews/product-reviews.entity';
+import VoucherProduct from '../vouchers/voucher-product.entity';
 
 @Entity()
 class Product {

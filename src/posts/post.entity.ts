@@ -1,6 +1,3 @@
-import { PostTag } from 'src/post-tag/post-tag.entity';
-import User from 'src/users/user.entity';
-import { generateSlug } from 'src/utils/utils';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -13,6 +10,17 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+
+import { PostTag } from '../post-tag/post-tag.entity';
+import User from '../users/user.entity';
+import { generateSlug } from '../utils/utils';
+
+export enum PostType {
+  NORMAL = 'normal',
+  HEADLINE = 'featured',
+  FIRST_HEADLINE = 'first_headline',
+  SECOND_HEADLINE = 'second_headline',
+}
 
 @Entity()
 class Post {
@@ -36,6 +44,9 @@ class Post {
 
   @Column({ unique: true })
   public slug: string;
+
+  @Column({ type: "enum", default: PostType.NORMAL, enum: PostType })
+  public post_type: PostType;
 
   @CreateDateColumn()
   created_at: Date;

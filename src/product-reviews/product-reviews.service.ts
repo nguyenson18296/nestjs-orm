@@ -10,8 +10,8 @@ import { Repository } from 'typeorm';
 
 import { CreateReviewsProductDto } from './dto/createReviewDto';
 import { UpdateReviewDto } from './dto/updateReviewDto';
-import User from 'src/users/user.entity';
-import Product from 'src/products/product.entity';
+import User from '../users/user.entity';
+import Product from '../products/product.entity';
 
 @Injectable()
 export class ProductReviewsService {
