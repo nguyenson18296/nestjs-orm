@@ -2,6 +2,8 @@ import { registerAs } from "@nestjs/config";
 import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from "typeorm";
 
+import { AddingPostType1727148205883 } from "../../migrations/index";
+
 dotenvConfig({ path: '.env' });
 
 const config = {
@@ -12,7 +14,9 @@ const config = {
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/migrations/*{.ts,.js}'],
+  migrations: [
+    AddingPostType1727148205883,
+  ],
   migrationsTableName: 'migrations',
   synchronize: true
 }

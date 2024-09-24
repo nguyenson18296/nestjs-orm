@@ -10,13 +10,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import Order, { TPaymentStatus } from './order.entity';
 import { CreateOrderDto, UpdateOrderDto } from './dto/createOrder.dto';
-import Product from 'src/products/product.entity';
+import Product from '../products/product.entity';
 import OrderItem from './orderItem.entity';
-import User from 'src/users/user.entity';
-import { Cart } from 'src/cart/cart.entity';
-import { CartItem } from 'src/cart/cart-item.entity';
-import VoucherUser from 'src/vouchers/voucher-user.entity';
-import Voucher from 'src/vouchers/voucher.entity';
+import User from '../users/user.entity';
+import { Cart } from '../cart/cart.entity';
+import { CartItem } from '../cart/cart-item.entity';
+import VoucherUser from '../vouchers/voucher-user.entity';
+import Voucher from '../vouchers/voucher.entity';
 
 @Injectable()
 export default class OrdersService {

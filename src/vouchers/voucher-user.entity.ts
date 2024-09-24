@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import Voucher from './voucher.entity';
-import User from 'src/users/user.entity';
+import User from '../users/user.entity';
 
 @Entity()
 class VoucherUser {

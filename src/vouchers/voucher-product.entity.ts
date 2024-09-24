@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 import Voucher from "./voucher.entity";
-import Product from "src/products/product.entity";
+import Product from "../products/product.entity";
 
 @Entity()
 class VoucherProduct {

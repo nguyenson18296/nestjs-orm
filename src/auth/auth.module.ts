@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
 import { JwtService, JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
 import OrderServices from 'src/orders/orders.service';
-import User from 'src/users/user.entity';
-import Order from 'src/orders/order.entity';
-import Product from 'src/products/product.entity';
-import OrderItem from 'src/orders/orderItem.entity';
-import { Cart } from 'src/cart/cart.entity';
-import { CartItem } from 'src/cart/cart-item.entity';
-import { PassportModule } from '@nestjs/passport';
+import User from '../users/user.entity';
+import Order from '../orders/order.entity';
+import Product from '../products/product.entity';
+import OrderItem from '../orders/orderItem.entity';
+import { Cart } from '../cart/cart.entity';
+import { CartItem } from '../cart/cart-item.entity';
 import { JwtStrategy } from './jwt.strategy';
-import VoucherUser from 'src/vouchers/voucher-user.entity';
-import Voucher from 'src/vouchers/voucher.entity';
+import VoucherUser from '../vouchers/voucher-user.entity';
+import Voucher from '../vouchers/voucher.entity';
 
 @Module({
   imports: [

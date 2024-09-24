@@ -5,7 +5,7 @@ import { Repository, EntityManager } from 'typeorm';
 import Voucher from './voucher.entity';
 import VoucherUser from './voucher-user.entity';
 import { CreateVoucherDto, CreateVoucherUserDto, UpdateVoucherDto } from './dto';
-import User from 'src/users/user.entity';
+import User from '../users/user.entity';
 
 @Injectable()
 export default class VouchersService {

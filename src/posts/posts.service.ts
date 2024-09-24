@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/createPost.dto';
 import Post from './post.entity';
 import { UpdatePostDto } from './dto/updatePost.dto';
-import User from 'src/users/user.entity';
+import User from '../users/user.entity';
 import { generateSlug } from 'src/utils/utils';
 
 @Injectable()
