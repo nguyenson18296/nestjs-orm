@@ -17,15 +17,29 @@ export default class PostsService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async getAllPosts() {
+  async getAllPosts(queries? : {
+    page?: number;
+    limit?: number
+  }) {
+    const limit = queries.limit ? parseInt(queries.limit.toString(), 10) : 10;
+    const page = queries.page ? parseInt(queries.page.toString(), 10) : 1;
+    const skip = (page - 1) * limit; // Calculate offset
+
     try {
-      const posts = await this.postsRepository.find({
+      const [posts, count] = await this.postsRepository.findAndCount({
         relations: {
           user: true,
         },
+        select: ['id', 'title', 'slug', 'post_type', 'cover_photo', 'seo_description', 'created_at'],
+        take: limit,
+        skip: skip,
       });
       return {
         data: posts,
+        total: count,
+        page: page,
+        limit: limit,
+        total_page: Math.ceil(count / limit),
         success: true,
         status: HttpStatus.OK,
       };
@@ -148,11 +162,20 @@ export default class PostsService {
   }
 
   async updatePost(id: number, post: UpdatePostDto) {
-    const updatedPost = await this.postsRepository.update(id, post);
-    if (updatedPost.affected === 0) {
-      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+    try {
+      const updatedResult = await this.postsRepository.update(id, post);
+      if (updatedResult.affected === 0) {
+        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+      }
+      const updatedPost = await this.postsRepository.findOneBy({ id });
+      return {
+        success: true,
+        data: updatedPost,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
     }
-    return updatedPost;
   }
 
   async deletePost(id: number) {

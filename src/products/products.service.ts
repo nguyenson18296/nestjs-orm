@@ -24,7 +24,12 @@ export default class ProductsService {
     min_price?: string,
     max_price?: string,
     search?: string,
+    pageQuery?: number,
+    limitQuery?: number,
+    sort?: string,
   ) {
+    const limit = limitQuery ? parseInt(limitQuery.toString(), 10) : 10;
+    const page = pageQuery ? parseInt(pageQuery.toString(), 10) : 1;
     const query = await this.productsRepository.createQueryBuilder('product');
 
     if (category_ids?.length > 0) {
@@ -50,12 +55,33 @@ export default class ProductsService {
       );
     }
 
+    if (sort === 'price_low_to_high') {
+      query.orderBy('product.price', 'ASC');
+    }
+
+    if (sort === 'price_high_to_low') {
+      query.orderBy('product.price', 'DESC');
+    }
+
+    if (sort === 'product_name_a_to_z') {
+      query.orderBy('product.title', 'ASC');
+    }
+
+    if (sort === 'product_name_z_to_a') {
+      query.orderBy('product.title', 'DESC');
+    }
+
     query.leftJoinAndSelect('product.category', 'category');
+    query.skip((page - 1) * limit);
+    query.take(limit);
 
     const [result, total] = await query.getManyAndCount();
 
     return {
       data: result,
+      success: true,
+      page: page,
+      limit: limit,
       total,
       status: HttpStatus.OK,
     };
@@ -128,22 +154,29 @@ export default class ProductsService {
   async getBestSellingProducts({
     start_date,
     end_date,
+    page: pageQuery,
+    limit: limitQuery,
   }: {
     start_date?: string;
     end_date?: string;
+    page?: number;
+    limit?: number;
   }): Promise<any> {
+    const limit = limitQuery ? parseInt(limitQuery.toString(), 10) : 10;
+    const page = pageQuery ? parseInt(pageQuery.toString(), 10) : 1;
+
     try {
       const entityManager = this.orderItemRepository.manager;
       let sql = `
           SELECT
-              p.id AS "product_id",
-              p.title AS "product_title",
-              p.thumbnail AS "product_thumbnail",
-              p.slug AS "product_slug",
-              p.price AS "product_price",
-              p.discount_price AS "product_discount_price",
-              p.in_stock AS "product_in_stock",
-              p.images as "product_images",
+              p.id AS "id",
+              p.title AS "title",
+              p.thumbnail AS "thumbnail",
+              p.slug AS "slug",
+              p.price AS "price",
+              p.discount_price AS "discount_price",
+              p.in_stock AS "in_stock",
+              p.images as "images",
               SUM(oi.quantity) AS "total_sold"
           FROM
               order_item oi
@@ -171,17 +204,40 @@ export default class ProductsService {
               p.id, p.title, p.thumbnail
           ORDER BY
               total_sold DESC
-          LIMIT 10;
+          LIMIT ${limit};
       `;
 
       const result = await entityManager.query(sql);
+
+      let countSql = `
+        SELECT
+            COUNT(DISTINCT p.id) AS "total"
+        FROM
+            order_item oi
+        INNER JOIN
+          product p ON oi.product_id = p.id
+        INNER JOIN
+          "order" o ON oi.order_id = o.id
+        WHERE
+          o.payment_status = 'COMPLETED'
+      `
+      if (conditions.length > 0) {
+        countSql += ' AND ' + conditions.join(' AND ');
+      }
+
+      const countResult = await entityManager.query(countSql);
+      const total = countResult[0]['total'];
+
       const resultTransformed = result.map((item: any) => ({
         ...item,
-        product_images: item.product_images ? item.product_images.split(',') : [],
+        images: item.images ? item.images.split(',') : [],
       }));
       return {
         data: resultTransformed,
         success: true,
+        page,
+        limit,
+        total: +total,
         status: HttpStatus.OK,
       };
     } catch (e) {
@@ -189,22 +245,32 @@ export default class ProductsService {
     }
   }
 
-  async getLatestProducts() {
+  async getLatestProducts({
+    page: pageQuery,
+    limit: limitQuery,
+  }: {
+    page?: number;
+    limit?: number;
+  }) {
+    const limit = limitQuery ? parseInt(limitQuery.toString(), 10) : 10;
+    const page = pageQuery ? parseInt(pageQuery.toString(), 10) : 1;
+
     try {
       const result = await this.productsRepository
         .createQueryBuilder('product')
         .select([
-          'product.id',
-          'product.title',
-          'product.thumbnail',
-          'product.slug',
-          'product.price',
-          'product.discount_price',
-          'product.in_stock',
-          'product.images',
+          'product.id as id',
+          'product.title as title',
+          'product.thumbnail as thumbnail',
+          'product.slug as slug',
+          'product.price as price',
+          'product.discount_price as discount_price',
+          'product.in_stock as in_stock',
+          'product.images as product_images',
         ])
         .orderBy('product.created_at', 'DESC')
-        .limit(10)
+        .skip((page - 1) * limit)
+        .take(10)
         .getRawMany();
       
       const resultTransformed = result.map((item: any) => ({
@@ -212,9 +278,16 @@ export default class ProductsService {
         product_images: item.product_images ? item.product_images.split(',') : [],
       }))
 
+      const total = await this.productsRepository
+        .createQueryBuilder('product')
+        .getCount();
+
       return {
         data: resultTransformed,
         success: true,
+        page,
+        limit,
+        total,
         status: HttpStatus.OK,
       };
     } catch (e) {
@@ -222,15 +295,46 @@ export default class ProductsService {
     }
   }
 
-  async getProductsByCategory(category_slug: string) {
+  async getProductsByCategory(category_slug: string, queries: {
+    page?: number;
+    limit?: number
+  }) {
+    const limit = queries.limit ? parseInt(queries.limit.toString(), 10) : 10;
+    const page = queries.limit ? parseInt(queries.limit.toString(), 10) : 1;
     try {
       const result = await this.productsRepository
         .createQueryBuilder('product')
+        .select('product.id', 'id')
+        .addSelect('product.title', 'title')
+        .addSelect('product.price', 'price')
+        .addSelect('product.discount_price', 'discount_price')
+        .addSelect('product.thumbnail', 'thumbnail')
+        .addSelect('product.slug', 'slug')
+        .addSelect('product.images', 'images')
+        .addSelect('product.in_stock', 'in_stock')
+        .addSelect('category.title', 'category_title')
         .innerJoin('product.category', 'category')
         .where('category.slug = :category_slug', { category_slug })
-        .getMany();
+        .skip((page - 1) * limit)
+        .take(limit)
+        .getRawMany();
+
+      const total = await this.productsRepository
+        .createQueryBuilder('product')
+        .innerJoin('product.category', 'category')
+        .where('category.slug = :category_slug', { category_slug })
+        .getCount();
+      
+      const resultTransformed = result.map((item: any) => ({
+        ...item,
+        images: item.images ? item.images.split(',') : [],
+      }));
+
       return {
-        data: result,
+        data: resultTransformed,
+        page,
+        limit,
+        total,
         success: true,
         status: HttpStatus.OK,
       };

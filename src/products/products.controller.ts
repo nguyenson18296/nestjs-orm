@@ -36,31 +36,36 @@ export default class ProductsController {
       min_price: string;
       max_price: string;
       search?: string;
+      page?: number;
+      limit?: number;
+      sort?: string;
     },
   ) {
     if (!isEmpty(query)) {
-      const { category_ids, min_price, max_price, search } = query;
+      const { category_ids, min_price, max_price, search, page, limit, sort } = query;
       const ids = category_ids?.split(',');
       return this.productsService.getAllProducts(
         ids,
         min_price,
         max_price,
         search,
+        page,
+        limit,
+        sort,
       );
     }
     return this.productsService.getAllProducts();
   }
 
   @Get('random')
-  getRandomProducts(
-    @Query() { limit }: { limit?: number },
-  ) {
+  getRandomProducts(@Query() { limit }: { limit?: number }) {
     return this.productsService.getRandomProducts(limit);
   }
 
   @Get('best-selling')
   getRandomProduct(
-    @Query() { start_date, end_date }: { start_date?: string; end_date?: string },
+    @Query()
+    { start_date, end_date }: { start_date?: string; end_date?: string },
   ) {
     return this.productsService.getBestSellingProducts({
       start_date,
@@ -69,8 +74,10 @@ export default class ProductsController {
   }
 
   @Get('newest')
-  getNewestProducts() {
-    return this.productsService.getLatestProducts();
+  getNewestProducts(
+    @Query() queries: { page?: number; limit?: number },
+  ) {
+    return this.productsService.getLatestProducts(queries);
   }
 
   @Get(':slug')
@@ -81,30 +88,37 @@ export default class ProductsController {
   }
 
   @Get('category/:slug')
-  getProductsByCategory(@Param('slug') slug: string) {
-    return this.productsService.getProductsByCategory(slug);
+  getProductsByCategory(@Param('slug') slug: string, @Query() { page, limit }: { page?:number; limit?: number }) {
+    return this.productsService.getProductsByCategory(slug, {
+      page,
+      limit,
+    });
   }
 
   @Post()
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'thumbnail', maxCount: 1 },
-    { name: 'images', maxCount: 5 }
-  ]))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'thumbnail', maxCount: 1 },
+      { name: 'images', maxCount: 5 },
+    ]),
+  )
   async createProduct(
     @Body() product: CreateProductDto,
     @UploadedFiles() thumbnail: Express.Multer.File[],
   ) {
     try {
-      const file = await this.cloudinaryService.uploadFile((thumbnail as any).thumbnail[0]);
+      const file = await this.cloudinaryService.uploadFile(
+        (thumbnail as any).thumbnail[0],
+      );
       if (file) {
         product.thumbnail = file.url;
       }
-      const imagesUrls = await Promise.all(
+      const imagesUrls = (await Promise.all(
         (thumbnail as any).images.map(async (image: any) => {
           const img = await this.cloudinaryService.uploadFile(image);
           return img.url;
         }),
-      ) as string[];
+      )) as string[];
       if (imagesUrls) {
         product.images = imagesUrls;
       }
@@ -133,7 +147,9 @@ export default class ProductsController {
     delete product.user_id;
     try {
       if ((thumbnail as any)?.thumbnail?.length > 0) {
-        const file = await this.cloudinaryService.uploadFile((thumbnail as any).thumbnail[0]);
+        const file = await this.cloudinaryService.uploadFile(
+          (thumbnail as any).thumbnail[0],
+        );
         if (file) {
           product.thumbnail = file.url;
         }
@@ -165,7 +181,7 @@ export default class ProductsController {
         data: updatedProduct,
         success: true,
         status: HttpStatus.OK,
-      }
+      };
     } catch (e) {
       throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
     }

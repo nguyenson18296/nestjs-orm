@@ -17,7 +17,7 @@ import { generateSlug } from '../utils/utils';
 
 export enum PostType {
   NORMAL = 'normal',
-  HEADLINE = 'featured',
+  HEADLINE = 'headline',
   FIRST_HEADLINE = 'first_headline',
   SECOND_HEADLINE = 'second_headline',
 }
@@ -45,14 +45,14 @@ class Post {
   @Column({ unique: true })
   public slug: string;
 
-  @Column({ type: "enum", default: PostType.NORMAL, enum: PostType })
+  @Column({ default: PostType.NORMAL })
   public post_type: PostType;
 
   @CreateDateColumn()
   created_at: Date;
 
   @ManyToOne(() => User)
-  @JoinColumn()
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column('text')
