@@ -12,6 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
   Request,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
@@ -31,8 +32,11 @@ export default class PostsController {
   ) {}
 
   @Get()
-  getAllPosts() {
-    return this.postsService.getAllPosts();
+  getAllPosts(@Query() queries?: {
+    page?: number;
+    limit?: number;
+  }) {
+    return this.postsService.getAllPosts(queries);
   }
 
   @Get('user/:user_id')
