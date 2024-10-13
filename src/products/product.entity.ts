@@ -60,6 +60,9 @@ class Product {
   @Column('integer', { default: 0 })
   public in_stock: number;
 
+  @Column('integer', { default: 5 })
+  public rating: number;
+
   @OneToMany(() => VoucherProduct, (voucher) => voucher.product)
   public vouchers: VoucherProduct[];
 

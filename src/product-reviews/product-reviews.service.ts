@@ -38,6 +38,7 @@ export class ProductReviewsService {
           'review.id',
           'review.content',
           'review.created_at',
+          'review.rating',
           'user.id',
           'user.username',
           'user.avatar',
@@ -72,55 +73,68 @@ export class ProductReviewsService {
     product_slug,
     content,
     parent_comment_id,
+    rating,
   }: CreateReviewsProductDto) {
-    if (!content) {
-      throw new HttpException('Content is required', HttpStatus.BAD_REQUEST);
-    }
-    // Verify user exists
-    const userExists = await this.usersRepository.findOne({
-      where: {
-        id: user_id,
-      },
-    });
-    if (!userExists) {
-      throw new NotFoundException('User not found');
-    }
-
-    // Verify product exists
-    const productExists = await this.productsRepository.findOne({
-      where: {
-        slug: product_slug,
-      },
-    });
-    if (!productExists) {
-      throw new NotFoundException('Product not found');
-    }
-
-    let parentComment = null;
-    if (parent_comment_id) {
-      parentComment = await this.reviewsRepository.findOneBy({
-        id: parent_comment_id,
+    try {
+      if (!content) {
+        throw new HttpException('Content is required', HttpStatus.BAD_REQUEST);
+      }
+      // Verify user exists
+      const userExists = await this.usersRepository.findOne({
+        where: {
+          id: user_id,
+        },
       });
-      if (!parentComment) {
-        throw new HttpException('Error', HttpStatus.NOT_FOUND);
+      if (!userExists) {
+        throw new NotFoundException('User not found');
       }
+  
+      // Verify product exists
+      const productExists = await this.productsRepository.findOne({
+        where: {
+          slug: product_slug,
+        },
+        relations: {
+          comments: true,
+        }
+      });
+      if (!productExists) {
+        throw new NotFoundException('Product not found');
+      }
+  
+      let parentComment = null;
+      if (parent_comment_id) {
+        parentComment = await this.reviewsRepository.findOneBy({
+          id: parent_comment_id,
+        });
+        if (!parentComment) {
+          throw new HttpException('Error', HttpStatus.NOT_FOUND);
+        }
+      } else {
+        const averageRating = productExists.comments.reduce((acc, curr) => acc + curr.rating, rating);
+        productExists.rating = Math.ceil(averageRating / (productExists.comments.length + 1));
+        await this.productsRepository.save(productExists);
+      }
+  
+      const newComment = await this.reviewsRepository.create({
+        content,
+        parent_comment: parentComment,
+        user: userExists,
+        product: productExists,
+        rating: rating || null,
+      });
+  
+      await this.reviewsRepository.save(newComment);
+      return {
+        success: true,
+        status: HttpStatus.OK,
+        data: {
+          ...newComment,
+        }
+      };
+    } catch (e) {
+      throw new HttpException('Error ' + e, HttpStatus.BAD_REQUEST);
     }
-
-    const newComment = await this.reviewsRepository.create({
-      content,
-      parent_comment: parentComment,
-      user: userExists,
-      product: parent_comment_id ? null : productExists,
-    });
-
-    await this.reviewsRepository.save(newComment);
-    return {
-      success: true,
-      status: HttpStatus.OK,
-      data: {
-        ...newComment,
-      }
-    };
   }
 
   async updateComment(comment_id: number, content: UpdateReviewDto) {

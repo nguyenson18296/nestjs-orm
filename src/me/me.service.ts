@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import Voucher from "src/vouchers/voucher.entity";
 import VoucherUser from "src/vouchers/voucher-user.entity";
 import { ICheckVoucherDto } from "./dto/meDto";
+import Order from "src/orders/order.entity";
 
 @Injectable()
 export default class MeService {
@@ -12,7 +13,9 @@ export default class MeService {
     @InjectRepository(Voucher)
     private vouchersRepository: Repository<Voucher>,
     @InjectRepository(VoucherUser)
-    private voucherUserRepository: Repository<VoucherUser>
+    private voucherUserRepository: Repository<VoucherUser>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>
   ) {}
 
   async getMyVouchers(user_id: number) {
@@ -83,6 +86,25 @@ export default class MeService {
 
       return {
         data: voucher,
+        success: true,
+        status: HttpStatus.OK
+      }
+    } catch (e) {
+      throw new HttpException('Error Service ' + e, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getMyOrders(user_id: number) {
+    try {
+      const orders = await this.orderRepository
+        .createQueryBuilder('o')
+        .leftJoinAndSelect('o.order_items', 'order_items')
+        .leftJoinAndSelect('order_items.product', 'product')
+        .where('o.buyer_info = :user_id', { user_id })
+        .getMany();
+      
+      return {
+        data: orders,
         success: true,
         status: HttpStatus.OK
       }

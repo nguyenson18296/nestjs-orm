@@ -20,4 +20,10 @@ export default class MeController {
   checkVoucher(@Body() checkVoucherDto: ICheckVoucherDto, @Request() req: any) {
     return this.meService.checkVoucher(checkVoucherDto, Number(req.user.user_id));
   }
+
+  @Get('/orders')
+  @UseGuards(AuthGuard('jwt'))
+  getMyOrders(@Request() req: any) {
+    return this.meService.getMyOrders(Number(req.user.user_id));
+  }
 }

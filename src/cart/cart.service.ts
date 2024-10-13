@@ -70,6 +70,7 @@ export class CartService {
     await this.cartsRepository.save(cart);
     return {
       success: true,
+      data: product,
       status: HttpStatus.OK,
       // data: cart,
     }

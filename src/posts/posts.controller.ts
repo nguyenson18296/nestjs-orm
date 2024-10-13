@@ -22,6 +22,7 @@ import { CreatePostDto } from './dto/createPost.dto';
 import { UpdatePostDto } from './dto/updatePost.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { NotificationService } from 'src/notifications/notifications.service';
+import RolesGuard from 'src/role/role.guard';
 
 @Controller('posts')
 export default class PostsController {
@@ -67,6 +68,7 @@ export default class PostsController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
+  @UseGuards(RolesGuard(['admin']))
   @UseInterceptors(FileInterceptor('thumbnail'))
   async createPost(
     @Body() post: CreatePostDto,

@@ -42,7 +42,7 @@ class Order {
   total_price: number;
 
   @ManyToOne(() => User, (user) => user)
-  @JoinTable()
+  @JoinTable({ name: 'buyer_info' })
   buyer_info: User;
 
   @Column()
