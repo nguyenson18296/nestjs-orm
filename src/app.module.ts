@@ -19,6 +19,7 @@ import PostTagModule from './post-tag/post-tag.module';
 import { OrderModules } from './orders/orders.module';
 import { VouchersModule } from './vouchers/vouchers.module';
 import { MeModule } from './me/me.module';
+import { ColumnsModule } from './columns/columns.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { MeModule } from './me/me.module';
     OrderModules,
     VouchersModule,
     MeModule,
+    ColumnsModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [],
