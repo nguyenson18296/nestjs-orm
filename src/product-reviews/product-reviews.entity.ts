@@ -29,6 +29,9 @@ class ProductReviews {
   @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
   public product: Product;
 
+  @Column('integer', { nullable: true, default: 5 })
+  public rating: number;
+
   @CreateDateColumn()
   created_at: Date;
 

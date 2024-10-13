@@ -3,4 +3,5 @@ export interface CreateReviewsProductDto {
   product_slug: string;
   content: string;
   parent_comment_id?: number;
+  rating: number;
 }

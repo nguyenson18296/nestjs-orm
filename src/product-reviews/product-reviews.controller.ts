@@ -15,7 +15,6 @@ import { CreateReviewsProductDto } from './dto/createReviewDto';
 import { ProductReviewsService } from './product-reviews.service';
 import { RolesGuard } from 'src/users/roles/roles.guard';
 import { UpdateReviewDto } from './dto/updateReviewDto';
-import { OptionalJwtAuthGuard } from 'src/auth/optional-jwt-auth.guard';
 
 @Controller('product-reviews')
 @UseGuards(RolesGuard)
@@ -46,6 +45,7 @@ export class ProductReviewsController {
         product_slug: comment.product_slug,
         content: comment.content,
         parent_comment_id: comment.parent_comment_id,
+        rating: comment.rating,
       });
     } catch (e) {
       throw new HttpException('Error', HttpStatus.BAD_REQUEST);

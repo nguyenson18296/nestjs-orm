@@ -5,7 +5,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { instanceToPlain, Exclude } from 'class-transformer';
+import { Exclude } from 'class-transformer';
+import { IsEmail, IsBoolean } from 'class-validator';
 
 import ProductReviews from '../product-reviews/product-reviews.entity';
 import { Role } from './roles/role.enum';
@@ -23,6 +24,7 @@ class User {
   username: string;
 
   @Column({ unique: true })
+  @IsEmail()
   email: string;
 
   @Column()
@@ -30,6 +32,7 @@ class User {
   password: string;
 
   @Column({ default: false })
+  @IsBoolean()
   email_confirm: boolean;
 
   @Column({ nullable: true })
