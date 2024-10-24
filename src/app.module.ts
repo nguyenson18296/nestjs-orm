@@ -20,6 +20,7 @@ import { OrderModules } from './orders/orders.module';
 import { VouchersModule } from './vouchers/vouchers.module';
 import { MeModule } from './me/me.module';
 import { ColumnsModule } from './columns/columns.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ColumnsModule } from './columns/columns.module';
     VouchersModule,
     MeModule,
     ColumnsModule,
+    TasksModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [],

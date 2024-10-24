@@ -2,6 +2,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -14,6 +16,7 @@ import { Notification } from '../notifications/notification.entity';
 import Post from '../posts/post.entity';
 import Order from '../orders/order.entity';
 import VoucherUser from '../vouchers/voucher-user.entity';
+import Tasks from 'src/tasks/task.entity';
 
 @Entity()
 class User {
@@ -47,6 +50,9 @@ class User {
 
   @OneToMany(() => Order, (orders) => orders.buyer_info)
   orders: Order[];
+
+  @ManyToMany(() => Tasks, (tasks) => tasks.assignees)
+  tasks: Tasks[];
 
   @OneToMany(() => ProductReviews, (comment) => comment.user)
   comments: Comment[];
