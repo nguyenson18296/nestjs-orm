@@ -3,4 +3,4 @@ export interface CreateColumnDto {
   order: number;
 }
 
-export type UpdateColumnDto = Partial<CreateColumnDto>;
+export type TUpdateColumnDto = Partial<CreateColumnDto>;
