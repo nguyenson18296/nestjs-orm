@@ -11,9 +11,10 @@ export interface ICreateTaskDto {
   created_at: string;
   assignees: User[];
   column_id: number;
-  taskLabels: TaskLabels[];
+  labels: TaskLabels[];
 }
 
 export type TUpdateTaskDto = Partial<ICreateTaskDto> & {
-  assignees_id: number[]
+  assignees_id: number[];
+  labels_id: string[];
 };

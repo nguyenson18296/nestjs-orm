@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -7,6 +7,7 @@ import { ICreateTaskDto, TUpdateTaskDto } from './tasks.dto';
 import Columns from 'src/columns/column.entity';
 import User from 'src/users/user.entity';
 import { generateSlug } from 'src/utils/utils';
+import TaskLabels from 'src/labels/labels.entity';
 
 @Injectable()
 export default class TasksService {
@@ -17,6 +18,8 @@ export default class TasksService {
     private columnsRepository: Repository<Columns>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(TaskLabels)
+    private labelsRepository: Repository<TaskLabels>,
   ) {}
 
   async getAllTasks() {
@@ -24,7 +27,8 @@ export default class TasksService {
       const tasksQueryBuilder = this.tasksRepository
         .createQueryBuilder('task')
         .leftJoinAndSelect('task.column', 'column') // Including related 'column'
-        .leftJoinAndSelect('task.assignees', 'assignee'); // Including related 'assignees'
+        .leftJoinAndSelect('task.assignees', 'assignee') // Including related 'assignees'
+        .leftJoinAndSelect('task.labels', 'label') // Including related 'labels'
 
       const [tasks, total] = await Promise.all([
         tasksQueryBuilder.getMany(),
@@ -56,6 +60,7 @@ export default class TasksService {
           'assignee.email', // Assuming you also want the email
           'assignee.avatar', // Assuming you also want the avatar
         ])
+        .leftJoinAndSelect('task.labels', 'label')
         .where('task.column_id = :columnId', { columnId }) // Make sure your column relation is correctly referenced
         .getMany();
 
@@ -142,9 +147,28 @@ export default class TasksService {
         )
         task.assignees = assignees;
       }
+
+      if (task.labels_id) {
+        const labels = await Promise.all(
+          task.labels_id.map(async (label) => {
+            const labelExist = await this.labelsRepository.findOne({
+              where: {
+                id: label,
+              },
+            });
+            if (!labelExist) {
+              throw new HttpException('Label not found', HttpStatus.NOT_FOUND);
+            }
+            return labelExist;
+          }),
+        );
+        task.labels = labels
+      }
+
       const updatedResult = await this.tasksRepository.save({
         ...taskExist,
         assignees: task.assignees,
+        labels: task.labels,
         slug: task.title ? generateSlug(task.title) : taskExist.slug,
       });
       return {
@@ -183,8 +207,6 @@ export default class TasksService {
           // Remove the assignee from the task's assignees
           task.assignees = task.assignees.filter((a) => a.id !== assigneeId);
 
-          console.log('Filtered task assignees', task.assignees);
-
           // Save the updated task with modified assignees
           await entityManager.save(task);
 
@@ -196,7 +218,6 @@ export default class TasksService {
         },
       );
     } catch (e) {
-      console.error('Error while saving task:', e); // Log the error for debugging
       throw new HttpException(
         'Error Service ' + e.message,
         HttpStatus.BAD_REQUEST,
