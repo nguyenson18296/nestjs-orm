@@ -4,6 +4,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, Ma
 import User from "src/users/user.entity";
 import Columns from "src/columns/column.entity";
 import TaskLabels from "src/labels/labels.entity";
+import { Activity } from "src/activities/activity.entity";
 
 @Entity()
 class Tasks {
@@ -66,8 +67,22 @@ class Tasks {
   @IsNotEmpty()
   column: Columns;
 
-  @OneToMany(() => TaskLabels, (taskLabels) => taskLabels.id)
-  taskLabels: TaskLabels[];
+  @ManyToMany(() => TaskLabels, label => label.task, { cascade: true })
+  @JoinTable({
+    name: 'task_labels_tasks',
+    joinColumn: {
+      name: 'task_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'label_id',
+      referencedColumnName: 'id',
+    }
+  })
+  labels: TaskLabels[];
+
+  @OneToMany(() => Activity, (activity) => activity.task)
+  activities: Activity[];
 }
 
 export default Tasks;

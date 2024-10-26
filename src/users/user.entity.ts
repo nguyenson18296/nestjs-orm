@@ -17,6 +17,7 @@ import Post from '../posts/post.entity';
 import Order from '../orders/order.entity';
 import VoucherUser from '../vouchers/voucher-user.entity';
 import Tasks from 'src/tasks/task.entity';
+import { Activity } from 'src/activities/activity.entity';
 
 @Entity()
 class User {
@@ -66,6 +67,9 @@ class User {
 
   @OneToMany(() => Notification, (notifications) => notifications.user)
   notifications: Notification[];
+
+  @OneToMany(() => Activity, (activity) => activity.user)
+  activities: Activity[];
 
   // toJSON() {
   //   return instanceToPlain(this);
