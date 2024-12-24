@@ -55,6 +55,9 @@ export default class TasksService {
           'task.id', // Select specific fields from task
           'task.title',
           'task.slug',
+          'task.banner',
+          'task.start_date',
+          'task.due_date',
           'assignee.id', // Select specific fields from assignee
           'assignee.username', // Only fetch the 'name' field from the assignees
           'assignee.email', // Assuming you also want the email
@@ -80,7 +83,7 @@ export default class TasksService {
         where: {
           slug,
         },
-        relations: ['assignees'],
+        relations: ['assignees', 'labels'],
       });
       if (!result) {
         throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
@@ -167,9 +170,13 @@ export default class TasksService {
 
       const updatedResult = await this.tasksRepository.save({
         ...taskExist,
+        banner: task.banner ? task.banner : taskExist.banner,
         assignees: task.assignees,
         labels: task.labels,
+        description: task.description ? task.description : taskExist.description,
         slug: task.title ? generateSlug(task.title) : taskExist.slug,
+        start_date: task.start_date ? task.start_date : taskExist.start_date,
+        due_date: task.due_date ? task.due_date : taskExist.due_date,
       });
       return {
         success: true,
