@@ -3,6 +3,7 @@ import TaskLabels from "src/labels/labels.entity";
 import User from "src/users/user.entity";
 
 export interface ICreateTaskDto {
+  banner?: string;
   title: string;
   slug: string;
   description: string;
